@@ -1,11 +1,15 @@
 import * as THREE from 'three';
 
 import { camera } from './camera.js';
+import { Hud } from './hud.js';
 import { Sun } from '../planets/sun/src-sun.js';
 
 class Main {
     private scene!: THREE.Scene;
     public renderer!: THREE.WebGLRenderer;
+
+    private hud!: Hud;
+
     private sun!: Sun;
 
     //Resolution
@@ -42,6 +46,7 @@ class Main {
 
     private render(): void {
         this.scene.add(camera.camera);
+        this.hud = new Hud();
         
         const canvas = <HTMLCanvasElement>(document.getElementById('main--context'));
         if(!canvas) throw new Error('Canvas not found');
@@ -54,6 +59,8 @@ class Main {
         //Animation
             const _animate = (): void => {
                 requestAnimationFrame(_animate);
+
+                camera.update();
 
                 if(camera.controls) camera.controls.update();
                 this.renderer.render(this.scene, camera.camera);

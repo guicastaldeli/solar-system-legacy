@@ -1,4 +1,10 @@
 body {
   margin: 0;
   overflow: hidden;
+}
+
+#unlock-camera {
+  position: absolute;
+  top: 0;
+  left: 0;
 }/*# sourceMappingURL=styles.css.map */

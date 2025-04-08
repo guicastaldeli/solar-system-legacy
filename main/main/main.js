@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { camera } from './camera.js';
+import { Hud } from './hud.js';
 import { Sun } from '../planets/sun/src-sun.js';
 class Main {
     //
@@ -28,6 +29,7 @@ class Main {
     }
     render() {
         this.scene.add(camera.camera);
+        this.hud = new Hud();
         const canvas = (document.getElementById('main--context'));
         if (!canvas)
             throw new Error('Canvas not found');
@@ -38,6 +40,7 @@ class Main {
         //Animation
         const _animate = () => {
             requestAnimationFrame(_animate);
+            camera.update();
             if (camera.controls)
                 camera.controls.update();
             this.renderer.render(this.scene, camera.camera);

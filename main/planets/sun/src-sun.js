@@ -1,6 +1,4 @@
 import * as THREE from 'three';
-import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { camera } from '../../main/camera.js';
 export class Sun {
     constructor(options = {}) {
@@ -60,33 +58,16 @@ export class Sun {
     }
     mouseClick(e) {
         if (this.isHovered) {
-            const loader = new FontLoader();
-            const path = '../../../assets/fonts/Home Video_Regular.json';
-            const content = 'SUN';
-            const pos = {
-                x: -1.25,
-                y: 2,
-                z: -5
-            };
-            loader.load(path, (font) => {
-                const geometry = new TextGeometry(content, {
-                    font: font,
-                    size: 1,
-                    depth: 0.5,
-                    curveSegments: 4,
-                    bevelEnabled: false
-                });
-                const textMesh = new THREE.Mesh(geometry, [
-                    new THREE.MeshBasicMaterial({ color: 'rgb(255, 255, 255)' }),
-                    new THREE.MeshBasicMaterial({ color: 'rgb(43, 43, 43)' })
-                ]);
-                textMesh.position.x = pos.x;
-                textMesh.position.y = pos.y;
-                textMesh.position.z = pos.z;
-                textMesh.rotation.x += 0.3;
-                camera.hudGroup.add(textMesh);
-                camera.camera.updateMatrixWorld(true);
+            const event = new CustomEvent('bodyClicked', {
+                detail: {
+                    id: 'sun',
+                    name: 'SUN',
+                    position: this.mesh.position.clone(),
+                    color: this.props.color,
+                    mesh: this.mesh,
+                }
             });
+            window.dispatchEvent(event);
         }
     }
     setupEvents() {
