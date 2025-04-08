@@ -1,14 +1,13 @@
 import * as THREE from 'three';
-import { camera } from '../../main/camera.js';
+import { activateRaycaster } from '../../main/raycaster.js';
 export class Sun {
     constructor(options = {}) {
         this.props = Sun.DEFAULT_PROPS;
+        //Raycaster
         this.isHovered = false;
         const props = Object.assign(Object.assign({}, Sun.DEFAULT_PROPS), options);
-        this.raycaster = new THREE.Raycaster();
-        this.mouse = new THREE.Vector2();
         this.addSun();
-        this.setupEvents();
+        this.raycaster();
     }
     createSun() {
         const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
@@ -31,58 +30,36 @@ export class Sun {
         this.createSun();
         this.sunPos();
     }
-    mouseHover(e) {
-        this.mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-        this.mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-        if (!this.raycaster)
-            return;
-        this.raycaster.setFromCamera(this.mouse, camera.camera);
-        const intersects = this.raycaster.intersectObject(this.mesh, true);
-        const validIntersects = intersects.filter(i => i.object === this.mesh);
-        const meshMaterial = this.mesh.material;
-        meshMaterial.transparent = true;
-        if (validIntersects.length > 0) {
-            if (!this.isHovered) {
-                this.isHovered = true;
-                meshMaterial.color.setStyle('rgb(228, 208, 129)');
-                meshMaterial.opacity = 1;
-            }
-        }
-        else {
-            if (this.isHovered) {
-                this.isHovered = false;
-                meshMaterial.color.setStyle(this.props.color);
-                meshMaterial.opacity = 1;
-            }
-        }
+    raycaster() {
+        const hoverColor = 'rgb(240, 217, 154)';
+        activateRaycaster.registerBody({
+            id: 'sun',
+            mesh: this.mesh,
+            defaultColor: this.props.color,
+            hoverColor: hoverColor
+        });
     }
     mouseClick(e) {
-        if (this.isHovered) {
-            const event = new CustomEvent('bodyClicked', {
-                detail: {
-                    id: 'sun',
-                    name: 'SUN',
-                    position: this.mesh.position.clone(),
-                    color: this.props.color,
-                    mesh: this.mesh,
-                }
-            });
-            window.dispatchEvent(event);
-        }
-    }
-    setupEvents() {
-        window.addEventListener('mousemove', (e) => this.mouseHover(e));
-        window.addEventListener('click', (e) => this.mouseClick(e));
+        const event = new CustomEvent('bodyClicked', {
+            detail: {
+                id: 'sun',
+                name: 'SUN',
+                position: this.mesh.position.clone(),
+                color: this.props.color,
+                mesh: this.mesh,
+            }
+        });
+        window.dispatchEvent(event);
     }
 }
 Sun.DEFAULT_PROPS = {
     //Size
-    r: 1,
-    d: 16,
+    r: 8,
+    d: 1,
     //Pos
     x: 0,
     y: 0,
-    z: 0,
+    z: -15,
     color: 'rgb(219, 180, 24)',
     texture: '',
     emissive: 0,

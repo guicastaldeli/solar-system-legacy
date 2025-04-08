@@ -17,10 +17,13 @@ class Camera {
 
     public setupCamera(w: number, h: number): void {
         this.camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
-        this.camera.position.z = 5;
+        this.camera.position.z = 25;
 
         this.camera.add(this.hudGroup);
     }
+
+    private minDistance: number = 1;
+    private maxDistance: number = 100;
     
     public setupControls(renderer: THREE.WebGLRenderer): void {
         if(renderer) this.controls = new OrbitControls(this.camera, renderer.domElement);
@@ -31,8 +34,8 @@ class Camera {
             RIGHT: THREE.MOUSE.ROTATE
         }
 
-        this.controls.minDistance = 1;
-        this.controls.maxDistance = 15;
+        this.controls.minDistance = this.minDistance;
+        this.controls.maxDistance = this.maxDistance;
 
         this.controls.addEventListener('change', () => {
             if(this.isLocked) {
@@ -64,8 +67,8 @@ class Camera {
         target: THREE.Vector3,
     } | null = null;
 
-    private minLockedDistance: number = 1.5;
-    private maxLockedDistance: number = 3;
+    private minLockedDistance: number = 20;
+    private maxLockedDistance: number = 25;
 
     public moveTo(target: THREE.Vector3): void {
         this.savedState = {
@@ -73,7 +76,7 @@ class Camera {
             target: this.controls.target.clone()
         }
 
-        let distance: number = 3;
+        let distance: number = 25;
 
         this.targetPosition.copy(target);
         this.isMoving = true;
@@ -82,7 +85,7 @@ class Camera {
         this.targetDistance = THREE.MathUtils.clamp(
             distance,
             this.minLockedDistance,
-            this.maxLockedDistance
+            this.maxLockedDistance,
         );
 
         if(this.controls) {
@@ -97,7 +100,7 @@ class Camera {
 
         if(this.controls) {
             this.controls.minDistance = this.targetDistance;
-            this.controls.maxDistance = 20;
+            this.controls.maxDistance = this.maxDistance;
         }
     }
 
@@ -110,8 +113,8 @@ class Camera {
             this.targetDistance = this.camera.position.distanceTo(this.savedState.target);
 
             if(this.controls) {
-                this.controls.minDistance = 1;
-                this.controls.maxDistance = 15;
+                this.controls.minDistance = this.minDistance;
+                this.controls.maxDistance = this.maxDistance;
             }
         }
     }

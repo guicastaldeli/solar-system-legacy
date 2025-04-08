@@ -26,8 +26,7 @@ export class Hud {
         });
     }
     createOrUpdateText(id, content, position, color) {
-        if (this.textMeshes[id])
-            camera.hudGroup.remove(this.textMeshes[id]);
+        this.removeAllTexts();
         if (!this.font) {
             console.log('font error');
             return;

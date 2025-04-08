@@ -8,15 +8,17 @@ class Camera {
         this.targetDistance = 3;
         this.isLocked = false;
         this.hudGroup = new THREE.Group();
+        this.minDistance = 1;
+        this.maxDistance = 100;
         this.originalPos = new THREE.Vector3();
         this.originalTarget = new THREE.Vector3(0, 0, 0);
         this.savedState = null;
-        this.minLockedDistance = 1.5;
-        this.maxLockedDistance = 3;
+        this.minLockedDistance = 20;
+        this.maxLockedDistance = 25;
     }
     setupCamera(w, h) {
         this.camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
-        this.camera.position.z = 5;
+        this.camera.position.z = 25;
         this.camera.add(this.hudGroup);
     }
     setupControls(renderer) {
@@ -27,8 +29,8 @@ class Camera {
             MIDDLE: THREE.MOUSE.DOLLY,
             RIGHT: THREE.MOUSE.ROTATE
         };
-        this.controls.minDistance = 1;
-        this.controls.maxDistance = 15;
+        this.controls.minDistance = this.minDistance;
+        this.controls.maxDistance = this.maxDistance;
         this.controls.addEventListener('change', () => {
             if (this.isLocked) {
                 const currentDistance = this.camera.position.distanceTo(this.controls.target);
@@ -54,7 +56,7 @@ class Camera {
             position: this.camera.position.clone(),
             target: this.controls.target.clone()
         };
-        let distance = 3;
+        let distance = 25;
         this.targetPosition.copy(target);
         this.isMoving = true;
         this.isLocked = true;
@@ -69,7 +71,7 @@ class Camera {
         this.isLocked = false;
         if (this.controls) {
             this.controls.minDistance = this.targetDistance;
-            this.controls.maxDistance = 20;
+            this.controls.maxDistance = this.maxDistance;
         }
     }
     returnPos() {
@@ -79,8 +81,8 @@ class Camera {
             this.targetPosition.copy(this.savedState.target);
             this.targetDistance = this.camera.position.distanceTo(this.savedState.target);
             if (this.controls) {
-                this.controls.minDistance = 1;
-                this.controls.maxDistance = 15;
+                this.controls.minDistance = this.minDistance;
+                this.controls.maxDistance = this.maxDistance;
             }
         }
     }

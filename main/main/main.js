@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { camera } from './camera.js';
 import { Hud } from './hud.js';
 import { Sun } from '../planets/sun/src-sun.js';
+import { Mercury } from '../planets/mercury/src-mercury.js';
 class Main {
     //
     constructor() {
@@ -26,6 +27,8 @@ class Main {
         const renderSun = new Sun();
         this.scene.add(renderSun.mesh);
         //Mercury
+        const renderMercury = new Mercury();
+        this.scene.add(renderMercury.mesh);
     }
     render() {
         this.scene.add(camera.camera);

@@ -43,7 +43,7 @@ export class Hud {
     }
 
     private createOrUpdateText(id: string, content: string, position: THREE.Vector3, color: string): void {
-        if(this.textMeshes[id]) camera.hudGroup.remove(this.textMeshes[id]);
+        this.removeAllTexts();
 
         if(!this.font) { 
             console.log('font error'); 

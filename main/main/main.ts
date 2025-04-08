@@ -2,7 +2,9 @@ import * as THREE from 'three';
 
 import { camera } from './camera.js';
 import { Hud } from './hud.js';
+
 import { Sun } from '../planets/sun/src-sun.js';
+import { Mercury } from '../planets/mercury/src-mercury.js';
 
 class Main {
     private scene!: THREE.Scene;
@@ -11,6 +13,7 @@ class Main {
     private hud!: Hud;
 
     private sun!: Sun;
+    private mercury!: Mercury;
 
     //Resolution
         public w: number = window.innerWidth;
@@ -42,6 +45,8 @@ class Main {
         this.scene.add(renderSun.mesh);
 
         //Mercury
+        const renderMercury = new Mercury();
+        this.scene.add(renderMercury.mesh);
     }
 
     private render(): void {
