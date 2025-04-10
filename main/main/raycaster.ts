@@ -6,6 +6,7 @@ type Body = {
     mesh: THREE.Mesh;
     defaultColor: string;
     hoverColor: string;
+    onClick?: (event: MouseEvent) => void;
 }
 
 export class ActivateRaycaster {
@@ -58,13 +59,18 @@ export class ActivateRaycaster {
                 const event = new CustomEvent('bodyClicked', {
                     detail: {
                         id: body.id,
-                        name: body.id,
+                        name: '',
                         position: body.mesh.position.clone(),
                         color: body.defaultColor,
                         mesh: body.mesh
                     }
                 });
+                
                 window.dispatchEvent(event);
+                
+                if(body.onClick) {
+                    body.onClick(e);
+                }
                 break;
             }
         }

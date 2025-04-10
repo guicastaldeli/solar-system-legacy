@@ -37,7 +37,7 @@ export class Sun {
 
     private props: Required<SunProps> = Sun.DEFAULT_PROPS;
     public mesh!: THREE.Mesh;
-
+    
     constructor(options: SunProps = {}) {
         const props = { ...Sun.DEFAULT_PROPS, ...options };
 
@@ -73,23 +73,22 @@ export class Sun {
     }
 
     //Raycaster
-        private isHovered: boolean = false;
-
        private raycaster(): void {
             const hoverColor: string = 'rgb(240, 217, 154)';
 
             activateRaycaster.registerBody({
-                id: 'sun',
+                id: 'rc-sun',
                 mesh: this.mesh,
                 defaultColor: this.props.color,
-                hoverColor: hoverColor
+                hoverColor: hoverColor,
+                onClick: (e: MouseEvent) => this.mouseClick(e)
             });
        }
 
         private mouseClick(e: MouseEvent): void {
             const event = new CustomEvent('bodyClicked', {
                 detail: {
-                    id: 'sun',
+                    id: 'clk-sun',
                     name: 'SUN',
                     position: this.mesh.position.clone(),
                     color: this.props.color,
@@ -97,6 +96,7 @@ export class Sun {
                 }
             });
             window.dispatchEvent(event);
+            camera.followObject(this.mesh);
         }
     //
 }

@@ -3,8 +3,11 @@ import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import { camera } from './camera.js';
 export class Hud {
-    constructor() {
+    constructor(scene) {
+        this.scene = scene;
         this.textMeshes = {};
+        this.lastPlanetId = null;
+        this.scene = scene;
         this.fontLoader = new FontLoader();
         this.loadFont();
         this.setupEvents();
@@ -20,23 +23,20 @@ export class Hud {
         window.addEventListener('bodyClicked', (e) => {
             const event = e;
             const { id, name, position, color, mesh } = event.detail;
-            this.createOrUpdateText(id, name, position, color);
+            this.createOrUpdateText(id, name, position, color, mesh);
             camera.moveTo(mesh.position);
             this.showUnlockBtn();
         });
     }
-    createOrUpdateText(id, content, position, color) {
+    createOrUpdateText(id, content, position, color, mesh) {
+        if (this.lastPlanetId === id)
+            return;
+        this.lastPlanetId = id;
         this.removeAllTexts();
         if (!this.font) {
             console.log('font error');
             return;
         }
-        const pos = {
-            x: -1.25,
-            y: 2,
-            z: -5,
-            rx: 0.3
-        };
         const geometry = new TextGeometry(content, {
             font: this.font,
             size: 1,
@@ -48,14 +48,25 @@ export class Hud {
             new THREE.MeshBasicMaterial({ color: 'rgb(255, 255, 255)' }),
             new THREE.MeshBasicMaterial({ color: 'rgb(43, 43, 43)' }),
         ]);
-        textMesh.position.copy(position);
-        textMesh.position.x = pos.x;
-        textMesh.position.y = pos.y;
+        const pos = {
+            x: 0,
+            y: 2,
+            z: -5
+        };
+        geometry.computeBoundingBox();
+        const boundingBox = geometry.boundingBox;
+        if (boundingBox) {
+            const centerOffset = -0.5 * (boundingBox.max.x - boundingBox.min.x);
+            geometry.translate(centerOffset, 0, 0);
+        }
+        mesh.geometry.computeBoundingSphere();
+        const boundingSphere = mesh.geometry.boundingSphere;
+        const planetSize = boundingSphere ? boundingSphere.radius : 1;
+        textMesh.position.x = pos.x - 0.15;
+        textMesh.position.y = planetSize / 4;
         textMesh.position.z = pos.z;
-        textMesh.rotation.x = pos.rx;
         this.textMeshes[id] = textMesh;
-        camera.hudGroup.add(textMesh);
-        camera.camera.updateMatrixWorld(true);
+        camera.camera.add(textMesh);
     }
     //Back Btn
     exitText() {
@@ -67,10 +78,12 @@ export class Hud {
         this.unlockButton.textContent = 'Back';
         this.unlockButton.style.display = 'none';
         this.unlockButton.addEventListener('click', () => {
-            camera.unlockCamera();
-            camera.returnPos();
+            this.lastPlanetId = null;
             this.hideUnlockBtn();
             this.removeAllTexts();
+            camera.unlockCamera();
+            camera.returnPos();
+            camera.stopFollowing();
         });
         document.body.appendChild(this.unlockButton);
     }
@@ -85,16 +98,18 @@ export class Hud {
         }
     }
     removeAllTexts() {
-        while (camera.hudGroup.children.length > 0) {
-            camera.hudGroup.remove(camera.hudGroup.children[0]);
+        for (const id in this.textMeshes) {
+            if (this.textMeshes[id].parent === camera.camera) {
+                camera.camera.remove(this.textMeshes[id]);
+            }
         }
+        this.textMeshes = {};
     }
     //
     removeText(id) {
-        if (this.textMeshes[id]) {
+        if (this.textMeshes[id] && this.textMeshes[id].parent === camera.camera) {
             camera.hudGroup.remove(this.textMeshes[id]);
             delete this.textMeshes[id];
         }
     }
 }
-export const hud = new Hud();

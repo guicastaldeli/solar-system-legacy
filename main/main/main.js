@@ -6,6 +6,7 @@ import { Mercury } from '../planets/mercury/src-mercury.js';
 class Main {
     //
     constructor() {
+        this.planets = [];
         //Resolution
         this.w = window.innerWidth;
         this.h = window.innerHeight;
@@ -28,11 +29,12 @@ class Main {
         this.scene.add(renderSun.mesh);
         //Mercury
         const renderMercury = new Mercury();
+        this.planets.push(renderMercury);
         this.scene.add(renderMercury.mesh);
     }
     render() {
         this.scene.add(camera.camera);
-        this.hud = new Hud();
+        this.hud = new Hud(this.scene);
         const canvas = (document.getElementById('main--context'));
         if (!canvas)
             throw new Error('Canvas not found');
@@ -46,6 +48,7 @@ class Main {
             camera.update();
             if (camera.controls)
                 camera.controls.update();
+            this.planets.forEach(p => p.update());
             this.renderer.render(this.scene, camera.camera);
         };
         _animate();

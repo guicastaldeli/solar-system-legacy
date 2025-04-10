@@ -9,7 +9,8 @@ export class Hud {
     private font: any;
     private textMeshes: Record<string, THREE.Mesh> = {};
 
-    constructor() {
+    constructor(private scene: THREE.Scene) {
+        this.scene = scene;
         this.fontLoader = new FontLoader();
         this.loadFont();
         this.setupEvents();
@@ -33,29 +34,25 @@ export class Hud {
                 color: string,
                 mesh: THREE.Mesh,
             }>;
-
             const { id, name, position, color, mesh } = event.detail;
-            this.createOrUpdateText(id, name, position, color);
 
+            this.createOrUpdateText(id, name, position, color, mesh);
             camera.moveTo(mesh.position);
             this.showUnlockBtn();
         });
     }
 
-    private createOrUpdateText(id: string, content: string, position: THREE.Vector3, color: string): void {
+    private lastPlanetId: string | null = null;
+
+    private createOrUpdateText(id: string, content: string, position: THREE.Vector3, color: string, mesh: THREE.Mesh): void {
+        if(this.lastPlanetId === id) return;
+        this.lastPlanetId = id;
+        
         this.removeAllTexts();
 
         if(!this.font) { 
             console.log('font error'); 
             return;
-        }
-
-        const pos = {
-            x: -1.25,
-            y: 2,
-            z: -5,
-
-            rx: 0.3
         }
 
         const geometry = new TextGeometry(content, {
@@ -65,22 +62,35 @@ export class Hud {
             curveSegments: 4,
             bevelEnabled: false,
         });
-
+        
         const textMesh = new THREE.Mesh(geometry, [
             new THREE.MeshBasicMaterial({ color: 'rgb(255, 255, 255)' }),
             new THREE.MeshBasicMaterial({ color: 'rgb(43, 43, 43)' }),
         ]);
 
-        textMesh.position.copy(position);
-        textMesh.position.x = pos.x;
-        textMesh.position.y = pos.y;
-        textMesh.position.z = pos.z;
+        const pos = {
+            x: 0,
+            y: 2,
+            z: -5
+        }
 
-        textMesh.rotation.x = pos.rx;
+        geometry.computeBoundingBox();
+        const boundingBox = geometry.boundingBox;
+        if(boundingBox) {
+            const centerOffset = -0.5 * (boundingBox.max.x - boundingBox.min.x);
+            geometry.translate(centerOffset, 0, 0);
+        }
 
+        mesh.geometry.computeBoundingSphere();
+        const boundingSphere = mesh.geometry.boundingSphere;
+        const planetSize = boundingSphere ? boundingSphere.radius : 1;
+
+        textMesh.position.x = pos.x - 0.15;
+        textMesh.position.y = planetSize / 4;
+        textMesh.position.z = pos.z
+        
         this.textMeshes[id] = textMesh;
-        camera.hudGroup.add(textMesh);
-        camera.camera.updateMatrixWorld(true);
+        camera.camera.add(textMesh);
     }
 
     private unlockButton!: HTMLButtonElement;
@@ -96,11 +106,14 @@ export class Hud {
             this.unlockButton.style.display = 'none';
 
             this.unlockButton.addEventListener('click', () => {
-                camera.unlockCamera();
-                camera.returnPos();
+                this.lastPlanetId = null;
 
                 this.hideUnlockBtn();
                 this.removeAllTexts();
+
+                camera.unlockCamera();
+                camera.returnPos();
+                camera.stopFollowing();
             });
 
             document.body.appendChild(this.unlockButton);
@@ -119,18 +132,20 @@ export class Hud {
         }
 
         private removeAllTexts(): void {
-            while(camera.hudGroup.children.length > 0) {
-                camera.hudGroup.remove(camera.hudGroup.children[0]);
+            for(const id in this.textMeshes) {
+                if(this.textMeshes[id].parent === camera.camera) {
+                    camera.camera.remove(this.textMeshes[id]);
+                }
             }
+
+            this.textMeshes = {};
         }
     //
 
     public removeText(id: string): void {
-        if(this.textMeshes[id]) {
+        if(this.textMeshes[id] && this.textMeshes[id].parent === camera.camera) {
             camera.hudGroup.remove(this.textMeshes[id]);
             delete this.textMeshes[id];
         }
     }
 }
-
-export const hud = new Hud();

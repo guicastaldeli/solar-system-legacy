@@ -2,37 +2,93 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 class Camera {
     constructor() {
+        this.hudGroup = new THREE.Group();
         this.targetPosition = new THREE.Vector3();
         this.isMoving = false;
         this.moveSpeed = 0.5;
         this.targetDistance = 3;
         this.isLocked = false;
-        this.hudGroup = new THREE.Group();
-        this.minDistance = 1;
+        //Min and Max distance
+        this.minDistance = 0;
         this.maxDistance = 100;
-        this.originalPos = new THREE.Vector3();
-        this.originalTarget = new THREE.Vector3(0, 0, 0);
         this.savedState = null;
+        //Following Planet... *ARRUMAR O ZOOM
         this.minLockedDistance = 20;
         this.maxLockedDistance = 25;
+        this.followingObject = null;
+        this.followSpeed = 0.1;
+        this.isFollowing = false;
     }
     setupCamera(w, h) {
         this.camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
         this.camera.position.z = 25;
+        this.hudGroup.position.set(0, 0, -10);
         this.camera.add(this.hudGroup);
     }
     setupControls(renderer) {
         if (renderer)
             this.controls = new OrbitControls(this.camera, renderer.domElement);
+        this.controls.minDistance = this.minDistance;
+        this.controls.maxDistance = this.maxDistance;
         this.controls.mouseButtons = {
             LEFT: THREE.MOUSE.PAN,
             MIDDLE: THREE.MOUSE.DOLLY,
             RIGHT: THREE.MOUSE.ROTATE
         };
-        this.controls.minDistance = this.minDistance;
-        this.controls.maxDistance = this.maxDistance;
+        //Pan Speed
+        const domElement = renderer.domElement;
+        const originalMouseMove = domElement.onmousemove;
+        let isPanning = false;
+        let lastPos = new THREE.Vector2();
+        domElement.addEventListener('mousedown', (e) => {
+            if (e.button === 0) {
+                isPanning = true;
+                lastPos.set(e.clientX, e.clientY);
+            }
+        });
+        domElement.addEventListener('mousemove', (e) => {
+            if (!isPanning || !this.controls.enabled)
+                return;
+            const panSpeed = 0.01;
+            const deltaX = e.clientX - lastPos.x;
+            const deltaY = e.clientY - lastPos.y;
+            this.camera.position.x -= deltaX * panSpeed;
+            this.camera.position.y += deltaY * panSpeed;
+            this.controls.target.x -= deltaX * panSpeed;
+            this.controls.target.y += deltaY * panSpeed;
+            lastPos.set(e.clientX, e.clientY);
+        });
+        domElement.addEventListener('mouseup', () => {
+            isPanning = false;
+        });
+        if (originalMouseMove) {
+            domElement.onmousemove = originalMouseMove;
+        }
+        //
+        //Dolly *ARRUMAR
+        const controlsDolly = this.controls;
+        const dollySpeed = 5;
+        controlsDolly.dollyOut = (dollyScale) => {
+            if (!this.controls.enabled)
+                return;
+            const direction = new THREE.Vector3()
+                .subVectors(this.camera.position, this.controls.target)
+                .normalize();
+            const zoomMov = dollyScale * dollySpeed;
+            this.camera.position.addScaledVector(direction, zoomMov);
+        };
+        controlsDolly.dollyIn = (dollyScale) => {
+            if (!this.controls.enabled)
+                return;
+            const direction = new THREE.Vector3()
+                .subVectors(this.camera.position, this.controls.target)
+                .normalize();
+            const zoomMov = dollyScale * dollySpeed;
+            this.camera.position.addScaledVector(direction, -zoomMov);
+        };
+        //Follow Planet (Camera)
         this.controls.addEventListener('change', () => {
-            if (this.isLocked) {
+            if (this.isFollowing) {
                 const currentDistance = this.camera.position.distanceTo(this.controls.target);
                 if (currentDistance < this.minLockedDistance) {
                     const direction = new THREE.Vector3()
@@ -50,8 +106,14 @@ class Camera {
                 }
             }
         });
+        //
+    }
+    getIsLocked() {
+        return this.isLocked;
     }
     moveTo(target) {
+        if (this.isLocked)
+            return;
         this.savedState = {
             position: this.camera.position.clone(),
             target: this.controls.target.clone()
@@ -67,11 +129,43 @@ class Camera {
             this.controls.maxDistance = this.maxLockedDistance;
         }
     }
-    unlockCamera() {
-        this.isLocked = false;
+    followObject(object) {
+        this.followingObject = object;
+        this.isFollowing = true;
+        this.isLocked = true;
+        this.isMoving = false;
+        this.savedState = {
+            position: this.camera.position.clone(),
+            target: this.controls.target.clone(),
+        };
         if (this.controls) {
-            this.controls.minDistance = this.targetDistance;
-            this.controls.maxDistance = this.maxDistance;
+            this.controls.enablePan = false;
+            this.controls.minDistance = this.minLockedDistance;
+            this.controls.maxDistance = this.maxLockedDistance;
+        }
+    }
+    stopFollowing() {
+        if (this.isFollowing && this.savedState) {
+            this.followingObject = null;
+            this.isFollowing = false;
+            this.isLocked = false;
+            this.isMoving = true;
+            this.targetPosition.copy(this.savedState.target);
+            if (this.controls) {
+                this.controls.enablePan = true;
+                this.controls.minDistance = this.minDistance;
+                this.controls.maxDistance = this.maxDistance;
+            }
+        }
+    }
+    //
+    unlockCamera() {
+        if (!this.isFollowing) {
+            this.isLocked = false;
+            if (this.controls) {
+                this.controls.minDistance = 0.1;
+                this.controls.maxDistance = Infinity;
+            }
         }
     }
     returnPos() {
@@ -87,6 +181,11 @@ class Camera {
         }
     }
     update() {
+        if (this.isFollowing && this.followingObject) {
+            const targetPos = new THREE.Vector3().copy(this.followingObject.position);
+            this.camera.position.lerp(targetPos, this.followSpeed);
+            this.controls.target.copy(this.followingObject.position);
+        }
         if (this.isMoving) {
             let targetPos;
             let targetLookAt;

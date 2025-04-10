@@ -1,10 +1,9 @@
 import * as THREE from 'three';
+import { camera } from '../../main/camera.js';
 import { activateRaycaster } from '../../main/raycaster.js';
 export class Sun {
     constructor(options = {}) {
         this.props = Sun.DEFAULT_PROPS;
-        //Raycaster
-        this.isHovered = false;
         const props = Object.assign(Object.assign({}, Sun.DEFAULT_PROPS), options);
         this.addSun();
         this.raycaster();
@@ -30,19 +29,21 @@ export class Sun {
         this.createSun();
         this.sunPos();
     }
+    //Raycaster
     raycaster() {
         const hoverColor = 'rgb(240, 217, 154)';
         activateRaycaster.registerBody({
-            id: 'sun',
+            id: 'rc-sun',
             mesh: this.mesh,
             defaultColor: this.props.color,
-            hoverColor: hoverColor
+            hoverColor: hoverColor,
+            onClick: (e) => this.mouseClick(e)
         });
     }
     mouseClick(e) {
         const event = new CustomEvent('bodyClicked', {
             detail: {
-                id: 'sun',
+                id: 'clk-sun',
                 name: 'SUN',
                 position: this.mesh.position.clone(),
                 color: this.props.color,
@@ -50,6 +51,7 @@ export class Sun {
             }
         });
         window.dispatchEvent(event);
+        camera.followObject(this.mesh);
     }
 }
 Sun.DEFAULT_PROPS = {

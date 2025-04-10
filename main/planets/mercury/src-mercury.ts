@@ -3,6 +3,7 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { Line2 } from 'three/addons/lines/Line2.js';
 
+import { Orbit } from '../../main/orbit.js';
 import { camera } from '../../main/camera.js';
 import { activateRaycaster } from '../../main/raycaster.js';
 
@@ -15,17 +16,19 @@ interface MercuryProps {
     color?: string,
     texture?: string,
     emissive?: number,
-    emissiveIntensity?: number
+    emissiveIntensity?: number,
+    orbitRadius?: number,
+    orbitSpeed?: number
 }
 
-export class Mercury {
+export class Mercury extends Orbit {
     static DEFAULT_PROPS: Required<MercuryProps> = {
         //Size
         r: 3,
         d: 1,
 
         //Pos
-        x: 15,
+        x: 55,
         y: 0,
         z: -15,
 
@@ -33,13 +36,17 @@ export class Mercury {
         texture: '',
         emissive: 0,
         emissiveIntensity: 0,
+
+        orbitRadius: 55,
+        orbitSpeed: 0.001
     }
 
-    private props: Required<MercuryProps> = Mercury.DEFAULT_PROPS;
+    protected props: Required<MercuryProps> = Mercury.DEFAULT_PROPS;
     public mesh!: THREE.Mesh;
 
     constructor(options: MercuryProps = {}) {
         const props = { ...Mercury.DEFAULT_PROPS, ...options };
+        super(props.orbitRadius, props.orbitSpeed);
 
         this.addMercury();
         this.raycaster();
@@ -77,17 +84,18 @@ export class Mercury {
             const hoverColor: string = 'rgb(75, 75, 75)';
 
             activateRaycaster.registerBody({
-                id: 'mercury',
+                id: 'rc-mercury',
                 mesh: this.mesh,
                 defaultColor: this.props.color,
-                hoverColor: hoverColor
+                hoverColor: hoverColor,
+                onClick: (e: MouseEvent) => this.mouseClick(e)
             });
         }
 
         private mouseClick(e: MouseEvent): void {
             const event = new CustomEvent('bodyClicked', {
                 detail: {
-                    id: 'mercury',
+                    id: 'clk-mercury',
                     name: 'MERCURY',
                     position: this.mesh.position.clone(),
                     color: this.props.color,
@@ -95,6 +103,7 @@ export class Mercury {
                 }
             });
             window.dispatchEvent(event);
+            camera.followObject(this.mesh);
         }
     //
 }

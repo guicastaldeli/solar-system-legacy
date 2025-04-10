@@ -1,9 +1,12 @@
 import * as THREE from 'three';
+import { Orbit } from '../../main/orbit.js';
+import { camera } from '../../main/camera.js';
 import { activateRaycaster } from '../../main/raycaster.js';
-export class Mercury {
+export class Mercury extends Orbit {
     constructor(options = {}) {
-        this.props = Mercury.DEFAULT_PROPS;
         const props = Object.assign(Object.assign({}, Mercury.DEFAULT_PROPS), options);
+        super(props.orbitRadius, props.orbitSpeed);
+        this.props = Mercury.DEFAULT_PROPS;
         this.addMercury();
         this.raycaster();
     }
@@ -32,16 +35,17 @@ export class Mercury {
     raycaster() {
         const hoverColor = 'rgb(75, 75, 75)';
         activateRaycaster.registerBody({
-            id: 'mercury',
+            id: 'rc-mercury',
             mesh: this.mesh,
             defaultColor: this.props.color,
-            hoverColor: hoverColor
+            hoverColor: hoverColor,
+            onClick: (e) => this.mouseClick(e)
         });
     }
     mouseClick(e) {
         const event = new CustomEvent('bodyClicked', {
             detail: {
-                id: 'mercury',
+                id: 'clk-mercury',
                 name: 'MERCURY',
                 position: this.mesh.position.clone(),
                 color: this.props.color,
@@ -49,6 +53,7 @@ export class Mercury {
             }
         });
         window.dispatchEvent(event);
+        camera.followObject(this.mesh);
     }
 }
 Mercury.DEFAULT_PROPS = {
@@ -56,11 +61,13 @@ Mercury.DEFAULT_PROPS = {
     r: 3,
     d: 1,
     //Pos
-    x: 15,
+    x: 55,
     y: 0,
     z: -15,
     color: 'rgb(121, 121, 121)',
     texture: '',
     emissive: 0,
     emissiveIntensity: 0,
+    orbitRadius: 55,
+    orbitSpeed: 0.001
 };

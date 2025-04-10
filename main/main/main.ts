@@ -3,15 +3,18 @@ import * as THREE from 'three';
 import { camera } from './camera.js';
 import { Hud } from './hud.js';
 
+import { Orbit } from './orbit.js';
+
 import { Sun } from '../planets/sun/src-sun.js';
 import { Mercury } from '../planets/mercury/src-mercury.js';
 
 class Main {
-    private scene!: THREE.Scene;
+    public scene!: THREE.Scene;
     public renderer!: THREE.WebGLRenderer;
 
     private hud!: Hud;
 
+    private planets: Orbit[] = [];
     private sun!: Sun;
     private mercury!: Mercury;
 
@@ -46,12 +49,13 @@ class Main {
 
         //Mercury
         const renderMercury = new Mercury();
+        this.planets.push(renderMercury);
         this.scene.add(renderMercury.mesh);
     }
 
     private render(): void {
         this.scene.add(camera.camera);
-        this.hud = new Hud();
+        this.hud = new Hud(this.scene);
         
         const canvas = <HTMLCanvasElement>(document.getElementById('main--context'));
         if(!canvas) throw new Error('Canvas not found');
@@ -66,8 +70,10 @@ class Main {
                 requestAnimationFrame(_animate);
 
                 camera.update();
-
                 if(camera.controls) camera.controls.update();
+
+                this.planets.forEach(p => p.update())
+
                 this.renderer.render(this.scene, camera.camera);
             }
 
