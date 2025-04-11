@@ -59,7 +59,7 @@ export class Hud {
             font: this.font,
             size: 1,
             depth: 0.2,
-            curveSegments: 4,
+            curveSegments: 5,
             bevelEnabled: false,
         });
         
@@ -71,7 +71,7 @@ export class Hud {
         const pos = {
             x: 0,
             y: 2,
-            z: -5
+            z: -30
         }
 
         geometry.computeBoundingBox();
@@ -87,15 +87,17 @@ export class Hud {
 
         textMesh.position.x = pos.x - 0.15;
         textMesh.position.y = planetSize / 4;
-        textMesh.position.z = pos.z
+        textMesh.position.z = pos.z;
+
+        textMesh.renderOrder = -1;
         
         this.textMeshes[id] = textMesh;
-        camera.camera.add(textMesh);
+        camera.hudGroup.add(textMesh);
     }
 
-    private unlockButton!: HTMLButtonElement;
-
     //Back Btn
+        private unlockButton!: HTMLButtonElement;
+
         private exitText(): void {
             const exBtn = document.getElementById('unlock-camera');
             if(exBtn) exBtn.remove();
@@ -133,9 +135,7 @@ export class Hud {
 
         private removeAllTexts(): void {
             for(const id in this.textMeshes) {
-                if(this.textMeshes[id].parent === camera.camera) {
-                    camera.camera.remove(this.textMeshes[id]);
-                }
+                camera.hudGroup.remove(this.textMeshes[id]);
             }
 
             this.textMeshes = {};
@@ -143,7 +143,7 @@ export class Hud {
     //
 
     public removeText(id: string): void {
-        if(this.textMeshes[id] && this.textMeshes[id].parent === camera.camera) {
+        if(this.textMeshes[id]) {
             camera.hudGroup.remove(this.textMeshes[id]);
             delete this.textMeshes[id];
         }

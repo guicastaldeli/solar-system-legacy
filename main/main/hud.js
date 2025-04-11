@@ -41,7 +41,7 @@ export class Hud {
             font: this.font,
             size: 1,
             depth: 0.2,
-            curveSegments: 4,
+            curveSegments: 5,
             bevelEnabled: false,
         });
         const textMesh = new THREE.Mesh(geometry, [
@@ -51,7 +51,7 @@ export class Hud {
         const pos = {
             x: 0,
             y: 2,
-            z: -5
+            z: -30
         };
         geometry.computeBoundingBox();
         const boundingBox = geometry.boundingBox;
@@ -65,10 +65,10 @@ export class Hud {
         textMesh.position.x = pos.x - 0.15;
         textMesh.position.y = planetSize / 4;
         textMesh.position.z = pos.z;
+        textMesh.renderOrder = -1;
         this.textMeshes[id] = textMesh;
-        camera.camera.add(textMesh);
+        camera.hudGroup.add(textMesh);
     }
-    //Back Btn
     exitText() {
         const exBtn = document.getElementById('unlock-camera');
         if (exBtn)
@@ -99,15 +99,13 @@ export class Hud {
     }
     removeAllTexts() {
         for (const id in this.textMeshes) {
-            if (this.textMeshes[id].parent === camera.camera) {
-                camera.camera.remove(this.textMeshes[id]);
-            }
+            camera.hudGroup.remove(this.textMeshes[id]);
         }
         this.textMeshes = {};
     }
     //
     removeText(id) {
-        if (this.textMeshes[id] && this.textMeshes[id].parent === camera.camera) {
+        if (this.textMeshes[id]) {
             camera.hudGroup.remove(this.textMeshes[id]);
             delete this.textMeshes[id];
         }

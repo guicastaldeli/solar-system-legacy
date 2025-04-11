@@ -33,22 +33,31 @@ class Main {
         this.scene.add(renderMercury.mesh);
     }
     render() {
+        ///Scene
         this.scene.add(camera.camera);
+        //Hud
         this.hud = new Hud(this.scene);
+        //Canvas
         const canvas = (document.getElementById('main--context'));
         if (!canvas)
             throw new Error('Canvas not found');
+        //Renderer
         this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas });
         this.renderer.setSize(this.w, this.h);
         if (!canvas.parentElement)
             document.body.appendChild(this.renderer.domElement);
         //Animation
         const _animate = () => {
+            //Animation
             requestAnimationFrame(_animate);
+            //Planets
+            this.planets.forEach(p => p.update());
+            //Camera
             camera.update();
             if (camera.controls)
                 camera.controls.update();
-            this.planets.forEach(p => p.update());
+            //Render
+            camera.camera.updateProjectionMatrix();
             this.renderer.render(this.scene, camera.camera);
         };
         _animate();
