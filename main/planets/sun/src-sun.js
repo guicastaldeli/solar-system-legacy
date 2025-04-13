@@ -45,19 +45,20 @@ export class Sun {
             detail: {
                 id: 'clk-sun',
                 name: 'SUN',
+                ts: 1,
                 position: this.mesh.position.clone(),
                 color: this.props.color,
                 mesh: this.mesh,
             }
         });
         window.dispatchEvent(event);
-        camera.followObject(this.mesh);
+        camera.followObject(this.mesh, this.props.r);
     }
 }
 Sun.DEFAULT_PROPS = {
     //Size
-    r: 8,
-    d: 1,
+    r: 30,
+    d: 16,
     //Pos
     x: 0,
     y: 0,

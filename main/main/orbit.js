@@ -14,6 +14,5 @@ export class Orbit {
     }
     update() {
         this.updateOrbit();
-        this.mesh.rotation.y += 0.01;
     }
 }

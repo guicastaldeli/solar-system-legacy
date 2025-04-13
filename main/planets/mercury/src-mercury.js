@@ -47,19 +47,20 @@ export class Mercury extends Orbit {
             detail: {
                 id: 'clk-mercury',
                 name: 'MERCURY',
+                ts: 0.8,
                 position: this.mesh.position.clone(),
                 color: this.props.color,
                 mesh: this.mesh
             }
         });
         window.dispatchEvent(event);
-        camera.followObject(this.mesh);
+        camera.followObject(this.mesh, this.props.r);
     }
 }
 Mercury.DEFAULT_PROPS = {
     //Size
     r: 3,
-    d: 1,
+    d: 16,
     //Pos
     x: 55,
     y: 0,
@@ -69,5 +70,5 @@ Mercury.DEFAULT_PROPS = {
     emissive: 0,
     emissiveIntensity: 0,
     orbitRadius: 55,
-    orbitSpeed: 0.001
+    orbitSpeed: 0.03
 };

@@ -30,13 +30,14 @@ export class Hud {
             const event = e as CustomEvent<{
                 id: string,
                 name: string,
+                ts: number,
                 position: THREE.Vector3,
                 color: string,
                 mesh: THREE.Mesh,
             }>;
-            const { id, name, position, color, mesh } = event.detail;
+            const { id, name, ts, position, color, mesh } = event.detail;
 
-            this.createOrUpdateText(id, name, position, color, mesh);
+            this.createOrUpdateText(id, name, ts, position, color, mesh);
             camera.moveTo(mesh.position);
             this.showUnlockBtn();
         });
@@ -44,7 +45,7 @@ export class Hud {
 
     private lastPlanetId: string | null = null;
 
-    private createOrUpdateText(id: string, content: string, position: THREE.Vector3, color: string, mesh: THREE.Mesh): void {
+    private createOrUpdateText(id: string, content: string, ts: number, position: THREE.Vector3, color: string, mesh: THREE.Mesh): void {
         if(this.lastPlanetId === id) return;
         this.lastPlanetId = id;
         
@@ -55,9 +56,11 @@ export class Hud {
             return;
         }
 
+        const textSize = ts;
+
         const geometry = new TextGeometry(content, {
             font: this.font,
-            size: 1,
+            size: textSize,
             depth: 0.2,
             curveSegments: 5,
             bevelEnabled: false,
@@ -68,12 +71,6 @@ export class Hud {
             new THREE.MeshBasicMaterial({ color: 'rgb(43, 43, 43)' }),
         ]);
 
-        const pos = {
-            x: 0,
-            y: 2,
-            z: -30
-        }
-
         geometry.computeBoundingBox();
         const boundingBox = geometry.boundingBox;
         if(boundingBox) {
@@ -83,14 +80,19 @@ export class Hud {
 
         mesh.geometry.computeBoundingSphere();
         const boundingSphere = mesh.geometry.boundingSphere;
-        const planetSize = boundingSphere ? boundingSphere.radius : 1;
+        const planetRadius = boundingSphere ? boundingSphere.radius : 1;
+
+        const pos = {
+            x: 0,
+            y: 2,
+            z: -105
+        }
 
         textMesh.position.x = pos.x - 0.15;
-        textMesh.position.y = planetSize / 4;
+        textMesh.position.y = pos.y;
         textMesh.position.z = pos.z;
+        //console.log(textMesh.position)
 
-        textMesh.renderOrder = -1;
-        
         this.textMeshes[id] = textMesh;
         camera.hudGroup.add(textMesh);
     }

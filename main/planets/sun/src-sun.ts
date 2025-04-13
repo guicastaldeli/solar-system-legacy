@@ -1,7 +1,4 @@
 import * as THREE from 'three';
-import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { FontLoader } from 'three/addons/loaders/FontLoader.js';
-import { Line2 } from 'three/addons/lines/Line2.js';
 
 import { camera } from '../../main/camera.js';
 import { activateRaycaster } from '../../main/raycaster.js';
@@ -21,8 +18,8 @@ interface SunProps {
 export class Sun {
     static DEFAULT_PROPS: Required<SunProps> = {
         //Size
-        r: 8,
-        d: 1,
+        r: 30,
+        d: 16,
 
         //Pos
         x: 0,
@@ -90,13 +87,14 @@ export class Sun {
                 detail: {
                     id: 'clk-sun',
                     name: 'SUN',
+                    ts: 1,
                     position: this.mesh.position.clone(),
                     color: this.props.color,
                     mesh: this.mesh,
                 }
             });
             window.dispatchEvent(event);
-            camera.followObject(this.mesh);
+            camera.followObject(this.mesh, this.props.r);
         }
     //
 }

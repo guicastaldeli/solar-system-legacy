@@ -13,17 +13,17 @@ class Camera {
         this.maxDistance = 100;
         this.savedState = null;
         //Following Planet...
-        this.minLockedDistance = 10;
-        this.maxLockedDistance = 20;
+        this.planetRadius = 1;
+        this.minLockedDistance = 1;
+        this.maxLockedDistance = 1;
         this.followingObject = null;
-        this.followSpeed = 0.1;
         this.isFollowing = false;
         this.currentFollowDistance = 10;
     }
     setupCamera(w, h) {
         //Camera Configs
-        this.camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
-        this.camera.position.z = 25;
+        this.camera = new THREE.PerspectiveCamera(80, w / h, 0.1, 1000);
+        this.camera.position.z = 100;
         //Hud Group
         this.hudGroup.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
         this.camera.add(this.hudGroup);
@@ -52,7 +52,7 @@ class Camera {
         domElement.addEventListener('mousemove', (e) => {
             if (!isPanning || !this.controls.enabled)
                 return;
-            const panSpeed = 0.01;
+            const panSpeed = 0.005;
             const deltaX = e.clientX - lastPos.x;
             const deltaY = e.clientY - lastPos.y;
             this.camera.position.x -= deltaX * panSpeed;
@@ -70,7 +70,7 @@ class Camera {
         //
         //Dolly
         const controlsDolly = this.controls;
-        const dollySpeed = 5;
+        const dollySpeed = 3;
         controlsDolly.dollyOut = (dollyScale) => {
             if (!this.controls.enabled)
                 return;
@@ -109,7 +109,7 @@ class Camera {
     getIsLocked() {
         return this.isLocked;
     }
-    moveTo(target) {
+    moveTo(target, planetRadius = 1) {
         if (this.isLocked)
             return;
         this.savedState = {
@@ -119,29 +119,37 @@ class Camera {
         this.targetPosition.copy(target);
         this.isMoving = true;
         this.isLocked = true;
-        this.targetDistance = THREE.MathUtils.clamp(this.camera.position.distanceTo(target), this.minLockedDistance, this.maxLockedDistance);
+        const actualMinDistance = this.minLockedDistance * planetRadius;
+        const actualMaxDistance = this.maxLockedDistance * planetRadius;
+        this.targetDistance = THREE.MathUtils.clamp(this.camera.position.distanceTo(target), actualMinDistance, actualMaxDistance);
         if (this.controls) {
             this.controls.enabled = true;
-            this.controls.minDistance = this.minLockedDistance;
-            this.controls.maxDistance = this.maxLockedDistance;
+            this.controls.minDistance = actualMinDistance;
+            this.controls.maxDistance = actualMaxDistance;
         }
     }
-    followObject(object) {
+    followObject(object, planetRadius = 1) {
         this.followingObject = object;
         this.isFollowing = true;
         this.isLocked = true;
         this.isMoving = false;
-        this.currentFollowDistance = this.camera.position.distanceTo(object.position);
-        this.currentFollowDistance = THREE.MathUtils.clamp(this.currentFollowDistance, this.minLockedDistance, this.maxLockedDistance);
-        const direction = new THREE.Vector3()
-            .subVectors(this.camera.position, object.position)
-            .normalize();
-        this.camera.position.copy(object.position).add(direction.multiplyScalar(this.currentFollowDistance));
-        this.controls.target.copy(object.position);
+        this.planetRadius = planetRadius;
         this.savedState = {
             position: this.camera.position.clone(),
             target: this.controls.target.clone(),
         };
+        this.minLockedDistance = planetRadius * 1.8;
+        this.maxLockedDistance = planetRadius * 2.5;
+        this.currentFollowDistance = this.camera.position.distanceTo(object.position);
+        const actualMinDistance = Math.max(0.1, this.minLockedDistance * planetRadius);
+        const actualMaxDistance = Math.max(actualMinDistance + 0.1, this.maxLockedDistance * planetRadius);
+        this.currentFollowDistance = THREE.MathUtils.clamp(this.currentFollowDistance, actualMinDistance, actualMaxDistance);
+        const direction = new THREE.Vector3()
+            .subVectors(this.camera.position, object.position)
+            .normalize();
+        const newPos = object.position.clone().add(direction.multiplyScalar(this.currentFollowDistance));
+        this.camera.position.copy(newPos);
+        this.controls.target.copy(object.position);
         if (this.controls) {
             this.controls.enableZoom = true;
             this.controls.minDistance = this.minLockedDistance;
@@ -155,6 +163,7 @@ class Camera {
             this.isLocked = false;
             this.isMoving = true;
             this.targetPosition.copy(this.savedState.target);
+            this.targetDistance = this.savedState.position.distanceTo(this.savedState.target);
             if (this.controls) {
                 this.controls.enablePan = true;
                 this.controls.minDistance = this.minDistance;
@@ -163,21 +172,23 @@ class Camera {
         }
     }
     //
-    unlockCamera() {
-        if (!this.isFollowing) {
-            this.isLocked = false;
+    returnPos() {
+        if (this.savedState) {
+            this.isMoving = true;
+            this.isLocked = true;
+            this.isFollowing = false;
+            this.targetPosition.copy(this.savedState.target);
+            this.targetDistance = this.savedState.position.distanceTo(this.savedState.target);
+            this.controls.target.copy(this.savedState.target);
             if (this.controls) {
                 this.controls.minDistance = this.minDistance;
                 this.controls.maxDistance = this.maxDistance;
             }
         }
     }
-    returnPos() {
-        if (this.savedState) {
-            this.isMoving = true;
+    unlockCamera() {
+        if (!this.isFollowing) {
             this.isLocked = false;
-            this.targetPosition.copy(this.savedState.target);
-            this.targetDistance = this.camera.position.distanceTo(this.savedState.target);
             if (this.controls) {
                 this.controls.minDistance = this.minDistance;
                 this.controls.maxDistance = this.maxDistance;

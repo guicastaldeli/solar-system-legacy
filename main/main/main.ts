@@ -7,20 +7,35 @@ import { Orbit } from './orbit.js';
 
 import { Sun } from '../planets/sun/src-sun.js';
 import { Mercury } from '../planets/mercury/src-mercury.js';
+import { Venus } from '../planets/venus/src-venus.js';
+import { Earth } from '../planets/earth/src-earth.js';
+import { Mars } from '../planets/mars/mars.js';
+import { Jupiter } from '../planets/jupiter/src-jupiter.js';
+import { Saturn } from '../planets/saturn/src-saturn.js';
+import { Uranus } from '../planets/uranus/src-uranus.js';
+import { Neptune } from '../planets/neptune/src-neptune.js';
 
 class Main {
     public scene!: THREE.Scene;
     public renderer!: THREE.WebGLRenderer;
 
+    //Resolution
+    public w: number = window.innerWidth;
+    public h: number = window.innerHeight;
+
     private hud!: Hud;
 
-    private planets: Orbit[] = [];
-    private sun!: Sun;
-    private mercury!: Mercury;
-
-    //Resolution
-        public w: number = window.innerWidth;
-        public h: number = window.innerHeight;
+    //Planets
+        private planets: Orbit[] = [];
+        private sun!: Sun;
+        private mercury!: Mercury;
+        private venus!: Venus;
+        private earth!: Earth;
+        private mars!: Mars;
+        private jupiter!: Jupiter;
+        private saturn!: Saturn;
+        private uranus!: Uranus;
+        private neptune!: Neptune;
     //
 
     constructor() {
@@ -29,17 +44,6 @@ class Main {
 
     private initScene(): void {
         this.scene = new THREE.Scene();
-    }
-
-    //Render
-    private resize = (): void => {
-        this.w = window.innerWidth;
-        this.h = window.innerHeight;
-
-        camera.camera.aspect = this.w / this.h;
-        camera.camera.updateProjectionMatrix();
-
-        this.renderer.setSize(this.w, this.h);
     }
 
     private renderPlanets(): void {
@@ -51,6 +55,52 @@ class Main {
         const renderMercury = new Mercury();
         this.planets.push(renderMercury);
         this.scene.add(renderMercury.mesh);
+
+        //Venus
+        const renderVenus = new Venus();
+        this.planets.push(renderVenus);
+        this.scene.add(renderVenus.mesh);
+
+        //Earth
+        const renderEarth = new Earth();
+        this.planets.push(renderEarth);
+        this.scene.add(renderEarth.mesh);
+
+        //Mars
+        const renderMars = new Mars();
+        this.planets.push(renderMars);
+        this.scene.add(renderMars.mesh);
+
+        //Jupiter
+        const renderJupiter = new Jupiter();
+        this.planets.push(renderJupiter);
+        this.scene.add(renderJupiter.mesh);
+
+        //Saturn
+        const renderSaturn = new Saturn();
+        this.planets.push(renderSaturn);
+        this.scene.add(renderSaturn.mesh);
+
+        //Uranus
+        const renderUranus = new Uranus();
+        this.planets.push(renderUranus);
+        this.scene.add(renderUranus.mesh);
+
+        //Neptune
+        const renderNeptune = new Neptune();
+        this.planets.push(renderNeptune);
+        this.scene.add(renderNeptune.mesh);
+    }
+
+    //Render
+    private resize = (): void => {
+        this.w = window.innerWidth;
+        this.h = window.innerHeight;
+
+        camera.camera.aspect = this.w / this.h;
+        camera.camera.updateProjectionMatrix();
+
+        this.renderer.setSize(this.w, this.h);
     }
 
     private render(): void {

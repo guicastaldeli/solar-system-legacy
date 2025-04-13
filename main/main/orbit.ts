@@ -21,6 +21,5 @@ export abstract class Orbit {
 
     public update(): void {
         this.updateOrbit();
-        this.mesh.rotation.y += 0.01;
     }
 }

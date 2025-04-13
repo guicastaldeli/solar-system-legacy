@@ -4,7 +4,7 @@ import { Orbit } from '../../main/orbit.js';
 import { camera } from '../../main/camera.js';
 import { activateRaycaster } from '../../main/raycaster.js';
 
-interface SaturnProps {
+interface MarsProps {
     r?: number,
     d?: number,
     x?: number,
@@ -18,37 +18,37 @@ interface SaturnProps {
     orbitSpeed?: number
 }
 
-export class Saturn extends Orbit {
-    static DEFAULT_PROPS: Required<SaturnProps> = {
+export class Mars extends Orbit {
+    static DEFAULT_PROPS: Required<MarsProps> = {
         //Size
-        r: 18,
+        r: 4,
         d: 16,
 
         //Pos
-        x: 275,
+        x: 155,
         y: 0,
         z: -15,
 
-        color: 'rgb(167, 143, 105)',
+        color: 'rgb(231, 117, 51)',
         texture: '',
         emissive: 0,
         emissiveIntensity: 0,
-        orbitRadius: 245,
-        orbitSpeed: 0.0005
+        orbitRadius: 145,
+        orbitSpeed: 0.003
     }
 
-    protected props: Required<SaturnProps> = Saturn.DEFAULT_PROPS;
+    protected props: Required<MarsProps> = Mars.DEFAULT_PROPS;
     public mesh!: THREE.Mesh;
 
-    constructor(options: SaturnProps = {}) {
-        const props = { ...Saturn.DEFAULT_PROPS, ...options };
+    constructor(options: MarsProps = {}) {
+        const props = { ...Mars.DEFAULT_PROPS, ...options };
         super(props.orbitRadius, props.orbitSpeed);
 
-        this.addSaturn();
+        this.addMars();
         this.raycaster();
     }
 
-    private createSaturn(): void {
+    private createMars(): void {
         const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
         const material = new THREE.MeshBasicMaterial({ color: this.props.color });
         this.mesh = new THREE.Mesh(geometry, material);
@@ -64,49 +64,23 @@ export class Saturn extends Orbit {
         //
     }
 
-    private saturnPos(): void {
+    private marsPos(): void {
         this.mesh.position.x = this.props.x,
         this.mesh.position.y = this.props.y,
         this.mesh.position.z = this.props.z
     }
 
-    //Rings
-        private createRings(): void {
-            const innerRadius = this.props.r + 3;
-            const outerRadius = this.props.r + 12;
-
-            const geometry = new THREE.RingGeometry(innerRadius, outerRadius, 64);
-            const material = new THREE.MeshBasicMaterial({ color: 'rgb(193, 184, 157)', side: THREE.DoubleSide, transparent: true, opacity: 0.7 });
-            const ring = new THREE.Mesh(geometry, material);
-
-            ring.rotation.x = 30
-
-            //Animation
-                const _animate = (): void => {
-                    requestAnimationFrame(_animate);
-
-                    ring.rotation.y = 0.05;
-                }
-
-                _animate();
-            //
-
-            this.mesh.add(ring);
-        }
-    //
-
-    private addSaturn(): void {
-        this.createSaturn();
-        this.saturnPos();
-        this.createRings();
+    private addMars(): void {
+        this.createMars();
+        this.marsPos();
     }
 
     //Raycaster
         private raycaster(): void {
-            const hoverColor: string = 'rgb(135, 115, 83))';
+            const hoverColor: string = 'rgb(179, 91, 40)';
 
             activateRaycaster.registerBody({
-                id: 'ic-saturn',
+                id: 'ic-mars',
                 mesh: this.mesh,
                 defaultColor: this.props.color,
                 hoverColor: hoverColor,
@@ -117,9 +91,9 @@ export class Saturn extends Orbit {
         private mouseClick(e: MouseEvent): void {
             const event = new CustomEvent('bodyClicked', {
                 detail: {
-                    id: 'clk-saturn',
-                    name: 'SATURN',
-                    ts: 1.15,
+                    id: 'clk-mars',
+                    name: 'MARS',
+                    ts: 0.9,
                     position: this.mesh.position.clone(),
                     color: this.props.color,
                     mesh: this.mesh

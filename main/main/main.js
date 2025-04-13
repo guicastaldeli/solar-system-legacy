@@ -3,13 +3,21 @@ import { camera } from './camera.js';
 import { Hud } from './hud.js';
 import { Sun } from '../planets/sun/src-sun.js';
 import { Mercury } from '../planets/mercury/src-mercury.js';
+import { Venus } from '../planets/venus/src-venus.js';
+import { Earth } from '../planets/earth/src-earth.js';
+import { Mars } from '../planets/mars/mars.js';
+import { Jupiter } from '../planets/jupiter/src-jupiter.js';
+import { Saturn } from '../planets/saturn/src-saturn.js';
+import { Uranus } from '../planets/uranus/src-uranus.js';
+import { Neptune } from '../planets/neptune/src-neptune.js';
 class Main {
     //
     constructor() {
-        this.planets = [];
         //Resolution
         this.w = window.innerWidth;
         this.h = window.innerHeight;
+        //Planets
+        this.planets = [];
         //Render
         this.resize = () => {
             this.w = window.innerWidth;
@@ -31,6 +39,34 @@ class Main {
         const renderMercury = new Mercury();
         this.planets.push(renderMercury);
         this.scene.add(renderMercury.mesh);
+        //Venus
+        const renderVenus = new Venus();
+        this.planets.push(renderVenus);
+        this.scene.add(renderVenus.mesh);
+        //Earth
+        const renderEarth = new Earth();
+        this.planets.push(renderEarth);
+        this.scene.add(renderEarth.mesh);
+        //Mars
+        const renderMars = new Mars();
+        this.planets.push(renderMars);
+        this.scene.add(renderMars.mesh);
+        //Jupiter
+        const renderJupiter = new Jupiter();
+        this.planets.push(renderJupiter);
+        this.scene.add(renderJupiter.mesh);
+        //Saturn
+        const renderSaturn = new Saturn();
+        this.planets.push(renderSaturn);
+        this.scene.add(renderSaturn.mesh);
+        //Uranus
+        const renderUranus = new Uranus();
+        this.planets.push(renderUranus);
+        this.scene.add(renderUranus.mesh);
+        //Neptune
+        const renderNeptune = new Neptune();
+        this.planets.push(renderNeptune);
+        this.scene.add(renderNeptune.mesh);
     }
     render() {
         ///Scene

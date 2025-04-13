@@ -1,7 +1,4 @@
 import * as THREE from 'three';
-import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { FontLoader } from 'three/addons/loaders/FontLoader.js';
-import { Line2 } from 'three/addons/lines/Line2.js';
 
 import { Orbit } from '../../main/orbit.js';
 import { camera } from '../../main/camera.js';
@@ -25,7 +22,7 @@ export class Mercury extends Orbit {
     static DEFAULT_PROPS: Required<MercuryProps> = {
         //Size
         r: 3,
-        d: 1,
+        d: 16,
 
         //Pos
         x: 55,
@@ -38,7 +35,7 @@ export class Mercury extends Orbit {
         emissiveIntensity: 0,
 
         orbitRadius: 55,
-        orbitSpeed: 0.001
+        orbitSpeed: 0.03
     }
 
     protected props: Required<MercuryProps> = Mercury.DEFAULT_PROPS;
@@ -97,13 +94,14 @@ export class Mercury extends Orbit {
                 detail: {
                     id: 'clk-mercury',
                     name: 'MERCURY',
+                    ts: 0.8,
                     position: this.mesh.position.clone(),
                     color: this.props.color,
                     mesh: this.mesh
                 }
             });
             window.dispatchEvent(event);
-            camera.followObject(this.mesh);
+            camera.followObject(this.mesh, this.props.r);
         }
     //
 }
