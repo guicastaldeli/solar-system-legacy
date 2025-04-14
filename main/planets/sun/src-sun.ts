@@ -11,7 +11,7 @@ interface SunProps {
     z?: number,
     color?: string,
     texture?: string,
-    emissive?: number,
+    emissive?: string | number,
     emissiveIntensity?: number
 }
 
@@ -26,17 +26,19 @@ export class Sun {
         y: 0,
         z: -15,
         
-        color: 'rgb(219, 180, 24)',
-        texture: '',
-        emissive: 0,
-        emissiveIntensity: 0,
+        color: '',
+        texture: '../../assets/textures/sun/2k_sun.jpg',
+        emissive: 'rgb(255, 208, 127)',
+        emissiveIntensity: 0.1,
     }
 
     private props: Required<SunProps> = Sun.DEFAULT_PROPS;
     public mesh!: THREE.Mesh;
+    private scene: THREE.Scene;
     
-    constructor(options: SunProps = {}) {
+    constructor(scene: THREE.Scene, options: SunProps = {}) {
         const props = { ...Sun.DEFAULT_PROPS, ...options };
+        this.scene = scene;
 
         this.addSun();
         this.raycaster();
@@ -44,8 +46,29 @@ export class Sun {
 
     private createSun(): void {
         const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
-        const material = new THREE.MeshBasicMaterial({ color: this.props.color, opacity: 1, transparent: true });
+
+        //Loader
+        const loader = new THREE.TextureLoader();
+        const material = new THREE.MeshStandardMaterial({ 
+            map: loader.load(this.props.texture), 
+            emissive: this.props.emissive, 
+            emissiveIntensity: this.props.emissiveIntensity 
+        });
+        
         this.mesh = new THREE.Mesh(geometry, material);
+        this.mesh.receiveShadow = true;
+
+        //Lightning
+            const pointLight = new THREE.PointLight();
+            pointLight.color = new THREE.Color('rgb(255, 255, 255)');
+            pointLight.intensity = 6;
+            pointLight.distance = 0;
+            pointLight.decay = 0;
+
+            pointLight.position.set(this.props.x, this.props.y, this.props.z);
+            
+            this.scene.add(pointLight);
+        //
 
         //Animation
             const _animate = (): void => {
@@ -71,13 +94,13 @@ export class Sun {
 
     //Raycaster
        private raycaster(): void {
-            const hoverColor: string = 'rgb(240, 217, 154)';
+            const hoverColor: string = 'rgb(199, 128, 128)';
 
             activateRaycaster.registerBody({
                 id: 'rc-sun',
                 mesh: this.mesh,
-                defaultColor: this.props.color,
-                hoverColor: hoverColor,
+                defaultColor: this.props.color || this.props.emissive,
+                hoverColor: hoverColor || this.props.emissive,
                 onClick: (e: MouseEvent) => this.mouseClick(e)
             });
        }

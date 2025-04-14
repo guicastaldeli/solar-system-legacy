@@ -2,16 +2,33 @@ import * as THREE from 'three';
 import { camera } from '../../main/camera.js';
 import { activateRaycaster } from '../../main/raycaster.js';
 export class Sun {
-    constructor(options = {}) {
+    constructor(scene, options = {}) {
         this.props = Sun.DEFAULT_PROPS;
         const props = Object.assign(Object.assign({}, Sun.DEFAULT_PROPS), options);
+        this.scene = scene;
         this.addSun();
         this.raycaster();
     }
     createSun() {
         const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
-        const material = new THREE.MeshBasicMaterial({ color: this.props.color, opacity: 1, transparent: true });
+        //Loader
+        const loader = new THREE.TextureLoader();
+        const material = new THREE.MeshStandardMaterial({
+            map: loader.load(this.props.texture),
+            emissive: this.props.emissive,
+            emissiveIntensity: this.props.emissiveIntensity
+        });
         this.mesh = new THREE.Mesh(geometry, material);
+        this.mesh.receiveShadow = true;
+        //Lightning
+        const pointLight = new THREE.PointLight();
+        pointLight.color = new THREE.Color('rgb(255, 255, 255)');
+        pointLight.intensity = 6;
+        pointLight.distance = 0;
+        pointLight.decay = 0;
+        pointLight.position.set(this.props.x, this.props.y, this.props.z);
+        this.scene.add(pointLight);
+        //
         //Animation
         const _animate = () => {
             requestAnimationFrame(_animate);
@@ -31,12 +48,12 @@ export class Sun {
     }
     //Raycaster
     raycaster() {
-        const hoverColor = 'rgb(240, 217, 154)';
+        const hoverColor = 'rgb(199, 128, 128)';
         activateRaycaster.registerBody({
             id: 'rc-sun',
             mesh: this.mesh,
-            defaultColor: this.props.color,
-            hoverColor: hoverColor,
+            defaultColor: this.props.color || this.props.emissive,
+            hoverColor: hoverColor || this.props.emissive,
             onClick: (e) => this.mouseClick(e)
         });
     }
@@ -63,8 +80,8 @@ Sun.DEFAULT_PROPS = {
     x: 0,
     y: 0,
     z: -15,
-    color: 'rgb(219, 180, 24)',
-    texture: '',
-    emissive: 0,
-    emissiveIntensity: 0,
+    color: '',
+    texture: '../../assets/textures/sun/2k_sun.jpg',
+    emissive: 'rgb(255, 208, 127)',
+    emissiveIntensity: 0.1,
 };

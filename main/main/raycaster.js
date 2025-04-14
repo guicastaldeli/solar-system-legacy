@@ -60,14 +60,14 @@ export class ActivateRaycaster {
             const prevBody = this.bodies.find(b => b.id === this.currentHoveredId);
             if (prevBody) {
                 const material = prevBody.mesh.material;
-                material.color.setStyle(prevBody.defaultColor);
+                material.emissiveIntensity = 0.2;
             }
         }
         if (newHoveredId) {
             const newBody = this.bodies.find(b => b.id === newHoveredId);
             if (newBody) {
                 const material = newBody.mesh.material;
-                material.color.setStyle(newBody.hoverColor);
+                material.emissiveIntensity = 1;
             }
         }
         this.currentHoveredId = newHoveredId;

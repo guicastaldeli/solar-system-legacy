@@ -1,6 +1,16 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import * as THREE from 'three';
 import { camera } from './camera.js';
 import { Hud } from './hud.js';
+import { Skybox } from './skybox/skybox.js';
 import { Sun } from '../planets/sun/src-sun.js';
 import { Mercury } from '../planets/mercury/src-mercury.js';
 import { Venus } from '../planets/venus/src-venus.js';
@@ -29,11 +39,17 @@ class Main {
         this.init();
     }
     initScene() {
-        this.scene = new THREE.Scene();
+        return __awaiter(this, void 0, void 0, function* () {
+            this.scene = new THREE.Scene();
+            //Render Skybox
+            this.skybox = new Skybox(500);
+            yield this.skybox.ready();
+            this.scene.add(this.skybox.points);
+        });
     }
     renderPlanets() {
         //Sun
-        const renderSun = new Sun();
+        const renderSun = new Sun(this.scene);
         this.scene.add(renderSun.mesh);
         //Mercury
         const renderMercury = new Mercury();
@@ -68,6 +84,12 @@ class Main {
         this.planets.push(renderNeptune);
         this.scene.add(renderNeptune.mesh);
     }
+    //Lightning
+    setupLightning() {
+        //Ambient
+        const ambientLight = new THREE.AmbientLight('rgb(255, 255, 255)', 0.05);
+        this.scene.add(ambientLight);
+    }
     render() {
         ///Scene
         this.scene.add(camera.camera);
@@ -80,12 +102,16 @@ class Main {
         //Renderer
         this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas });
         this.renderer.setSize(this.w, this.h);
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFShadowMap;
         if (!canvas.parentElement)
             document.body.appendChild(this.renderer.domElement);
         //Animation
         const _animate = () => {
             //Animation
             requestAnimationFrame(_animate);
+            //Skybox
+            this.skybox.update();
             //Planets
             this.planets.forEach(p => p.update());
             //Camera
@@ -104,6 +130,7 @@ class Main {
     init() {
         this.initScene();
         camera.setupCamera(this.w, this.h);
+        this.setupLightning();
         this.renderPlanets();
         this.render();
         camera.setupControls(this.renderer);

@@ -50,8 +50,11 @@ export class Saturn extends Orbit {
 
     private createSaturn(): void {
         const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
-        const material = new THREE.MeshBasicMaterial({ color: this.props.color });
+        const material = new THREE.MeshStandardMaterial({ color: this.props.color });
         this.mesh = new THREE.Mesh(geometry, material);
+
+        this.mesh.castShadow = true;
+        this.mesh.receiveShadow = true;
 
         //Animation
             const _animate = (): void => {
@@ -76,8 +79,11 @@ export class Saturn extends Orbit {
             const outerRadius = this.props.r + 12;
 
             const geometry = new THREE.RingGeometry(innerRadius, outerRadius, 64);
-            const material = new THREE.MeshBasicMaterial({ color: 'rgb(193, 184, 157)', side: THREE.DoubleSide, transparent: true, opacity: 0.7 });
+            const material = new THREE.MeshStandardMaterial({ color: 'rgb(193, 184, 157)', side: THREE.DoubleSide, transparent: true, opacity: 0.7 });
             const ring = new THREE.Mesh(geometry, material);
+
+            ring.castShadow = true;
+            ring.receiveShadow = true;
 
             ring.rotation.x = 30
 

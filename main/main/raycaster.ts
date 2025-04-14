@@ -4,8 +4,8 @@ import { camera } from './camera.js';
 type Body = {
     id: string;
     mesh: THREE.Mesh;
-    defaultColor: string;
-    hoverColor: string;
+    defaultColor: string | number;
+    hoverColor: string | number;
     onClick?: (event: MouseEvent) => void;
 }
 
@@ -88,8 +88,8 @@ export class ActivateRaycaster {
             const prevBody = this.bodies.find(b => b.id === this.currentHoveredId);
 
             if(prevBody) {
-                const material = prevBody.mesh.material as THREE.MeshBasicMaterial;
-                material.color.setStyle(prevBody.defaultColor);
+                const material = prevBody.mesh.material as THREE.MeshStandardMaterial;
+                material.emissiveIntensity = 0.2;
             }
         }
 
@@ -97,8 +97,8 @@ export class ActivateRaycaster {
             const newBody = this.bodies.find(b => b.id === newHoveredId);
 
             if(newBody) {
-                const material = newBody.mesh.material as THREE.MeshBasicMaterial;
-                material.color.setStyle(newBody.hoverColor);
+                const material = newBody.mesh.material as THREE.MeshStandardMaterial;
+                material.emissiveIntensity = 1;
             }
         }
 

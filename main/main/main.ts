@@ -3,6 +3,8 @@ import * as THREE from 'three';
 import { camera } from './camera.js';
 import { Hud } from './hud.js';
 
+import { Skybox } from './skybox/skybox.js';
+
 import { Orbit } from './orbit.js';
 
 import { Sun } from '../planets/sun/src-sun.js';
@@ -25,6 +27,9 @@ class Main {
 
     private hud!: Hud;
 
+    //Skybox
+    private skybox!: Skybox;
+
     //Planets
         private planets: Orbit[] = [];
         private sun!: Sun;
@@ -42,13 +47,18 @@ class Main {
         this.init();
     }
 
-    private initScene(): void {
+    private async initScene(): Promise<void> {
         this.scene = new THREE.Scene();
+
+        //Render Skybox
+        this.skybox = new Skybox(500);
+        await this.skybox.ready();
+        this.scene.add(this.skybox.points);
     }
 
     private renderPlanets(): void {
         //Sun
-        const renderSun = new Sun();
+        const renderSun = new Sun(this.scene);
         this.scene.add(renderSun.mesh);
 
         //Mercury
@@ -92,6 +102,13 @@ class Main {
         this.scene.add(renderNeptune.mesh);
     }
 
+    //Lightning
+    private setupLightning(): void {
+        //Ambient
+        const ambientLight = new THREE.AmbientLight('rgb(255, 255, 255)', 0.05);
+        this.scene.add(ambientLight);
+    }
+
     //Render
     private resize = (): void => {
         this.w = window.innerWidth;
@@ -118,6 +135,9 @@ class Main {
         this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas });
         this.renderer.setSize(this.w, this.h);
 
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFShadowMap;
+
         if(!canvas.parentElement) document.body.appendChild(this.renderer.domElement);
 
         //Animation
@@ -125,13 +145,16 @@ class Main {
                 //Animation
                 requestAnimationFrame(_animate);
 
+                //Skybox
+                this.skybox.update();
+
                 //Planets
                 this.planets.forEach(p => p.update());
 
                 //Camera
                 camera.update();
                 if(camera.controls) camera.controls.update();
-
+                
                 //Render
                 camera.camera.updateProjectionMatrix()
                 this.renderer.render(this.scene, camera.camera);
@@ -147,6 +170,8 @@ class Main {
     private init() {
         this.initScene();
         camera.setupCamera(this.w, this.h);
+
+        this.setupLightning();
 
         this.renderPlanets();
 

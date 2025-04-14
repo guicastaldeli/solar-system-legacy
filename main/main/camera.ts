@@ -17,6 +17,19 @@ class Camera {
     private minDistance: number = 0;
     private maxDistance: number = 100;
 
+    //Skybox Collision
+    private skyboxRadius: number = 500;
+    private preventCollision: boolean = true;
+
+    private checkSkyboxCollision(): void {
+        if(!this.preventCollision) return;
+
+        const cameraDistance = this.camera.position.length();
+        const maxDistance = this.skyboxRadius * 0.95;
+
+        if(cameraDistance > maxDistance) this.camera.position.normalize().multiplyScalar(maxDistance);
+    }
+
     public setupCamera(w: number, h: number): void {
         //Camera Configs
         this.camera = new THREE.PerspectiveCamera(80, w / h, 0.1, 1000);
@@ -108,6 +121,8 @@ class Camera {
 
         //Follow Planet (Camera)
             this.controls.addEventListener('change', () => {
+                this.checkSkyboxCollision();
+
                 if(this.isFollowing && this.followingObject) {
                     this.currentFollowDistance = this.camera.position.distanceTo(this.followingObject.position);
 
@@ -282,6 +297,8 @@ class Camera {
             this.camera.position.copy(this.followingObject.position).add(direction.multiplyScalar(this.currentFollowDistance));
         }
 
+        this.checkSkyboxCollision();
+
         if(this.controls) {
             this.controls.update();
         }
@@ -310,6 +327,8 @@ class Camera {
                     this.controls.enabled = true;
                 }
             }
+
+            this.checkSkyboxCollision();
         }
 
         if(this.controls) {

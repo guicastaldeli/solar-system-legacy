@@ -4,6 +4,8 @@ import { Orbit } from '../../main/orbit.js';
 import { camera } from '../../main/camera.js';
 import { activateRaycaster } from '../../main/raycaster.js';
 
+import { getFresnelMat } from './shaders/fresnelMat.js';
+
 interface EarthProps {
     r?: number,
     d?: number,
@@ -29,7 +31,7 @@ export class Earth extends Orbit {
         y: 0,
         z: -15,
 
-        color: 'rgb(0, 56, 168)',
+        color: 'rgb(115, 138, 184)',
         texture: '',
         emissive: 0,
         emissiveIntensity: 0,
@@ -48,16 +50,40 @@ export class Earth extends Orbit {
         this.raycaster();
     }
 
-    private createEarth(): void {
+    private async createEarth(): Promise<void> {
         const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
-        const material = new THREE.MeshBasicMaterial({ color: this.props.color });
+
+        //Texture
+        const loader = new THREE.TextureLoader();
+        const material = new THREE.MeshStandardMaterial({ map: loader.load('../../assets/textures/earth/00_earthmap1k.jpg') });
+
         this.mesh = new THREE.Mesh(geometry, material);
+        this.mesh.castShadow = true;
+        this.mesh.receiveShadow = true;
+
+        //Glow
+        const fresnelMat = await getFresnelMat();
+        const glowMesh = new THREE.Mesh(geometry, fresnelMat);
+        glowMesh.scale.setScalar(1.015)
+        this.mesh.add(glowMesh);
+
+        //Clouds
+        const cloudsMat = new THREE.MeshStandardMaterial({ 
+            map: loader.load('../../assets/textures/earth/cloud_combined_2048.jpg'),
+            opacity: 0.4, 
+            blending: THREE.AdditiveBlending
+        });
+        const cloudsMesh = new THREE.Mesh(geometry, cloudsMat);
+        cloudsMesh.scale.setScalar(1.015);
+        this.mesh.add(cloudsMesh);
 
         //Animation
             const _animate = (): void => {
                 requestAnimationFrame(_animate);
 
-                this.mesh.rotation.y += 0.01;
+                this.mesh.rotation.y += 0.002;
+                cloudsMesh.rotation.y += 0.002;
+                glowMesh.rotation.y += 0.002;
             }
 
             _animate();
@@ -70,14 +96,14 @@ export class Earth extends Orbit {
         this.mesh.position.z = this.props.z
     }
 
-    private addEarth(): void {
+    private async addEarth(): Promise<void> {
         this.createEarth();
         this.earthPos();
     }
 
     //Raycaster
         private raycaster(): void {
-            const hoverColor: string = 'rgb(0, 34, 102)';
+            const hoverColor: string = 'rgb(85, 101, 135)';
 
             activateRaycaster.registerBody({
                 id: 'ic-earth',

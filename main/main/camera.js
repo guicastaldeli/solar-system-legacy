@@ -11,6 +11,9 @@ class Camera {
         //Min and Max distance
         this.minDistance = 0;
         this.maxDistance = 100;
+        //Skybox Collision
+        this.skyboxRadius = 500;
+        this.preventCollision = true;
         this.savedState = null;
         //Following Planet...
         this.planetRadius = 1;
@@ -19,6 +22,14 @@ class Camera {
         this.followingObject = null;
         this.isFollowing = false;
         this.currentFollowDistance = 10;
+    }
+    checkSkyboxCollision() {
+        if (!this.preventCollision)
+            return;
+        const cameraDistance = this.camera.position.length();
+        const maxDistance = this.skyboxRadius * 0.95;
+        if (cameraDistance > maxDistance)
+            this.camera.position.normalize().multiplyScalar(maxDistance);
     }
     setupCamera(w, h) {
         //Camera Configs
@@ -91,6 +102,7 @@ class Camera {
         };
         //Follow Planet (Camera)
         this.controls.addEventListener('change', () => {
+            this.checkSkyboxCollision();
             if (this.isFollowing && this.followingObject) {
                 this.currentFollowDistance = this.camera.position.distanceTo(this.followingObject.position);
                 const clampledDistance = THREE.MathUtils.clamp(this.currentFollowDistance, this.minLockedDistance, this.maxLockedDistance);
@@ -203,6 +215,7 @@ class Camera {
                 .normalize();
             this.camera.position.copy(this.followingObject.position).add(direction.multiplyScalar(this.currentFollowDistance));
         }
+        this.checkSkyboxCollision();
         if (this.controls) {
             this.controls.update();
         }
@@ -228,6 +241,7 @@ class Camera {
                     this.controls.enabled = true;
                 }
             }
+            this.checkSkyboxCollision();
         }
         if (this.controls) {
             this.controls.update();

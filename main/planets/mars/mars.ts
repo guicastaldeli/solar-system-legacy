@@ -50,8 +50,11 @@ export class Mars extends Orbit {
 
     private createMars(): void {
         const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
-        const material = new THREE.MeshBasicMaterial({ color: this.props.color });
+        const material = new THREE.MeshStandardMaterial({ color: this.props.color });
         this.mesh = new THREE.Mesh(geometry, material);
+
+        this.mesh.castShadow = true;
+        this.mesh.receiveShadow = true;
 
         //Animation
             const _animate = (): void => {

@@ -35,7 +35,7 @@ export class Mercury extends Orbit {
         emissiveIntensity: 0,
 
         orbitRadius: 55,
-        orbitSpeed: 0.03
+        orbitSpeed: 0.005
     }
 
     protected props: Required<MercuryProps> = Mercury.DEFAULT_PROPS;
@@ -51,8 +51,11 @@ export class Mercury extends Orbit {
 
     private createMercury(): void {
         const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
-        const material = new THREE.MeshBasicMaterial({ color: this.props.color, opacity: 1, transparent: true });
+        const material = new THREE.MeshStandardMaterial({ color: this.props.color, opacity: 1, transparent: true });
         this.mesh = new THREE.Mesh(geometry, material);
+
+        this.mesh.castShadow = true;
+        this.mesh.receiveShadow = true;
 
         //Animation
             const _animate = (): void => {
