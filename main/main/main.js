@@ -66,12 +66,14 @@ class Main {
             this.planets.push(renderPlanets);
             this.scene.add(renderPlanets.mesh);
         }
+        //Render Moon
         const earth = this.planets.find(p => p instanceof Earth);
         if (earth) {
             this.moon = new Moon(earth);
             this.planets.push(this.moon);
             this.scene.add(this.moon.mesh);
         }
+        //
     }
     //Lightning
     setupLightning() {
