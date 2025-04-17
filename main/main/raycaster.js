@@ -4,6 +4,7 @@ export class ActivateRaycaster {
     constructor() {
         this.bodies = [];
         this.currentHoveredId = null;
+        this.lastClickedId = null;
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
         this.setupEvents();
@@ -32,22 +33,18 @@ export class ActivateRaycaster {
         for (const body of this.bodies) {
             const intersects = this.raycaster.intersectObject(body.mesh);
             if (intersects.length > 0) {
-                const event = new CustomEvent('bodyClicked', {
-                    detail: {
-                        id: body.id,
-                        name: '',
-                        position: body.mesh.position.clone(),
-                        color: body.defaultColor,
-                        mesh: body.mesh
-                    }
-                });
-                window.dispatchEvent(event);
+                if (body.id === this.lastClickedId) {
+                    return;
+                }
                 if (body.onClick) {
                     body.onClick(e);
                 }
                 break;
             }
         }
+    }
+    clearLastClicked() {
+        this.lastClickedId = null;
     }
     setupEvents() {
         window.addEventListener('mousemove', (e) => this.mouseMove(e));
@@ -60,14 +57,14 @@ export class ActivateRaycaster {
             const prevBody = this.bodies.find(b => b.id === this.currentHoveredId);
             if (prevBody) {
                 const material = prevBody.mesh.material;
-                material.emissiveIntensity = 0.2;
+                material.emissiveIntensity = 0;
             }
         }
         if (newHoveredId) {
             const newBody = this.bodies.find(b => b.id === newHoveredId);
             if (newBody) {
                 const material = newBody.mesh.material;
-                material.emissiveIntensity = 1;
+                material.emissiveIntensity = 0.5;
             }
         }
         this.currentHoveredId = newHoveredId;

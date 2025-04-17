@@ -8,11 +8,17 @@ export class Mercury extends Orbit {
         super(props.orbitRadius, props.orbitSpeed);
         this.props = Mercury.DEFAULT_PROPS;
         this.addMercury();
-        this.raycaster();
     }
     createMercury() {
+        //Loader
+        const loader = new THREE.TextureLoader();
+        //
         const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
-        const material = new THREE.MeshStandardMaterial({ color: this.props.color, opacity: 1, transparent: true });
+        const material = new THREE.MeshStandardMaterial({
+            map: loader.load(this.props.texture),
+            emissive: this.props.emissive,
+            emissiveIntensity: this.props.emissiveIntensity
+        });
         this.mesh = new THREE.Mesh(geometry, material);
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
@@ -32,6 +38,7 @@ export class Mercury extends Orbit {
     addMercury() {
         this.createMercury();
         this.mercuryPos();
+        this.raycaster();
     }
     //Raycaster
     raycaster() {
@@ -39,8 +46,8 @@ export class Mercury extends Orbit {
         activateRaycaster.registerBody({
             id: 'rc-mercury',
             mesh: this.mesh,
-            defaultColor: this.props.color,
-            hoverColor: hoverColor,
+            defaultColor: this.props.color || this.props.emissive,
+            hoverColor: hoverColor || this.props.emissive,
             onClick: (e) => this.mouseClick(e)
         });
     }
@@ -56,6 +63,9 @@ export class Mercury extends Orbit {
             }
         });
         window.dispatchEvent(event);
+        if (camera.isFollowingObject(this.mesh)) {
+            return;
+        }
         camera.followObject(this.mesh, this.props.r);
     }
 }
@@ -68,9 +78,9 @@ Mercury.DEFAULT_PROPS = {
     y: 0,
     z: -15,
     color: 'rgb(121, 121, 121)',
-    texture: '',
-    emissive: 0,
-    emissiveIntensity: 0,
+    texture: '../../assets/textures/mercury/2k_mercury.jpg',
+    emissive: 'rgb(121, 121, 121)',
+    emissiveIntensity: 0.1,
     orbitRadius: 55,
     orbitSpeed: 0.005
 };

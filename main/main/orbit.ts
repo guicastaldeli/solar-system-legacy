@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 export abstract class Orbit {
-    public mesh!: THREE.Mesh;
+    public mesh: THREE.Mesh | null = null;
     protected orbitRadius: number = 0;
     protected orbitSpeed: number = 0;
     protected angle: number = 0;
@@ -14,6 +14,8 @@ export abstract class Orbit {
     }
 
     protected updateOrbit(): void {
+        if(!this.mesh) return;
+        
         this.angle += this.orbitSpeed;
         this.mesh.position.x = Math.cos(this.angle) * this.orbitRadius;
         this.mesh.position.z = Math.sin(this.angle) * this.orbitRadius;

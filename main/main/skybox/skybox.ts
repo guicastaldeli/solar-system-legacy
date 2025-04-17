@@ -1,22 +1,32 @@
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 export class Skybox {
     public points!: THREE.Points;
-    private geometry!: THREE.BufferGeometry;
+    private geometries: THREE.BufferGeometry[] = [];
     private material!: THREE.ShaderMaterial | THREE.PointsMaterial;
     private clock: THREE.Clock;
 
     private readyPromise: Promise<void>;
 
-    constructor(count: number = 2000) {
+    constructor(count: number = 1, chunks: number = 1) {
         this.clock = new THREE.Clock();
-        this.geometry = new THREE.BufferGeometry();
+        
+        const starsChunk = Math.ceil(count / chunks);
+        this.geometries = [];
 
-        const { pos, color, scale, phase } = this.generateStars(count);
-        this.geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-        this.geometry.setAttribute('color', new THREE.BufferAttribute(color, 3));
-        this.geometry.setAttribute('scale', new THREE.BufferAttribute(scale, 1));
-        this.geometry.setAttribute('phase', new THREE.BufferAttribute(phase, 1));
+        for(let i = 0; i < chunks; i++) {
+            const chunkCount = i === chunks - 1 ? count - (i * starsChunk) : starsChunk;
+            const geometry = new THREE.BufferGeometry();
+
+            const { pos, color, scale, phase } = this.generateStars(chunkCount);
+            geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(color, 3));
+            geometry.setAttribute('scale', new THREE.BufferAttribute(scale, 1));
+            geometry.setAttribute('phase', new THREE.BufferAttribute(phase, 1));
+
+            this.geometries.push(geometry);
+        }
 
         this.readyPromise = this.createStars();
     }
@@ -40,7 +50,10 @@ export class Skybox {
                 depthWrite: false
             });
 
-            this.points = new THREE.Points(this.geometry, this.material);
+            const mergedGeometry = mergeGeometries(this.geometries);
+            this.geometries.forEach(g => g.dispose());
+            this.geometries = [];
+            this.points = new THREE.Points(mergedGeometry, this.material);
         } catch(error) {
             console.error(error);
         }

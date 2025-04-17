@@ -1,5 +1,6 @@
 export class Orbit {
     constructor(orbitRadius, orbitSpeed) {
+        this.mesh = null;
         this.orbitRadius = 0;
         this.orbitSpeed = 0;
         this.angle = 0;
@@ -8,6 +9,8 @@ export class Orbit {
         this.angle = Math.random() * Math.PI * 2;
     }
     updateOrbit() {
+        if (!this.mesh)
+            return;
         this.angle += this.orbitSpeed;
         this.mesh.position.x = Math.cos(this.angle) * this.orbitRadius;
         this.mesh.position.z = Math.sin(this.angle) * this.orbitRadius;

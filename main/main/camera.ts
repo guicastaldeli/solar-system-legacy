@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { activateRaycaster } from './raycaster.js';
 
 class Camera {
     public camera!: THREE.PerspectiveCamera;
@@ -27,7 +28,10 @@ class Camera {
         const cameraDistance = this.camera.position.length();
         const maxDistance = this.skyboxRadius * 0.95;
 
-        if(cameraDistance > maxDistance) this.camera.position.normalize().multiplyScalar(maxDistance);
+        if(cameraDistance > maxDistance) {
+            const direction = this.camera.position.clone().normalize();
+            this.camera.position.copy(direction.multiplyScalar(maxDistance));
+        }
     }
 
     public setupCamera(w: number, h: number): void {
@@ -194,6 +198,10 @@ class Camera {
 
         private currentFollowDistance: number = 10;
 
+        public isFollowingObject(object: THREE.Object3D): boolean {
+            return this.isFollowing && this.followingObject === object;
+        }
+
         public followObject(object: THREE.Object3D, planetRadius: number = 1): void {
             this.followingObject = object;
             this.isFollowing = true;
@@ -248,8 +256,11 @@ class Camera {
                 this.targetPosition.copy(this.savedState.target);
                 this.targetDistance = this.savedState.position.distanceTo(this.savedState.target);
         
+                activateRaycaster.clearLastClicked();
+
                 if(this.controls) {
-                    this.controls.enablePan = true;
+                    this.controls.enablePan = false;
+                    this.controls.enableRotate = true;
                     this.controls.minDistance = this.minDistance;
                     this.controls.maxDistance = this.maxDistance;
                 }

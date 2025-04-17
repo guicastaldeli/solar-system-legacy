@@ -12,7 +12,8 @@ interface SaturnProps {
     z?: number,
     color?: string,
     texture?: string,
-    emissive?: number,
+    ringsTexture?: string,
+    emissive?: string | number,
     emissiveIntensity?: number,
     orbitRadius?: number,
     orbitSpeed?: number
@@ -30,27 +31,36 @@ export class Saturn extends Orbit {
         z: -15,
 
         color: 'rgb(167, 143, 105)',
-        texture: '',
-        emissive: 0,
-        emissiveIntensity: 0,
+        texture: '../../assets/textures/saturn/2k_saturn.jpg',
+        ringsTexture: '../../assets/textures/saturn/2k_saturn_ring_alpha.png',
+        emissive: 'rgb(167, 143, 105)',
+        emissiveIntensity: 0.1,
         orbitRadius: 245,
         orbitSpeed: 0.0005
     }
 
     protected props: Required<SaturnProps> = Saturn.DEFAULT_PROPS;
     public mesh!: THREE.Mesh;
+    public ringsMesh!: THREE.Mesh;
 
     constructor(options: SaturnProps = {}) {
         const props = { ...Saturn.DEFAULT_PROPS, ...options };
         super(props.orbitRadius, props.orbitSpeed);
 
         this.addSaturn();
-        this.raycaster();
     }
 
     private createSaturn(): void {
+        //Loader
+            const loader = new THREE.TextureLoader();
+        //
+
         const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
-        const material = new THREE.MeshStandardMaterial({ color: this.props.color });
+        const material = new THREE.MeshStandardMaterial({ 
+            map: loader.load(this.props.texture),
+            emissive: this.props.emissive,
+            emissiveIntensity: this.props.emissiveIntensity    
+        });
         this.mesh = new THREE.Mesh(geometry, material);
 
         this.mesh.castShadow = true;
@@ -75,29 +85,40 @@ export class Saturn extends Orbit {
 
     //Rings
         private createRings(): void {
-            const innerRadius = this.props.r + 3;
-            const outerRadius = this.props.r + 12;
+            //Loader
+                const loader = new THREE.TextureLoader();
+            //
+
+            const innerRadius = this.props.r + 4;
+            const outerRadius = this.props.r + 15;
 
             const geometry = new THREE.RingGeometry(innerRadius, outerRadius, 64);
-            const material = new THREE.MeshStandardMaterial({ color: 'rgb(193, 184, 157)', side: THREE.DoubleSide, transparent: true, opacity: 0.7 });
-            const ring = new THREE.Mesh(geometry, material);
+            const material = new THREE.MeshStandardMaterial({ 
+                map: loader.load(this.props.ringsTexture), 
+                side: THREE.DoubleSide, 
+                transparent: true,
+                opacity: 0.9,
+                emissive: this.props.emissive,
+                emissiveIntensity: this.props.emissiveIntensity 
+            });
+            this.ringsMesh = new THREE.Mesh(geometry, material);
 
-            ring.castShadow = true;
-            ring.receiveShadow = true;
+            this.ringsMesh.castShadow = true;
+            this.ringsMesh.receiveShadow = true;
 
-            ring.rotation.x = 30
+            this.ringsMesh.rotation.x = 30
 
             //Animation
                 const _animate = (): void => {
                     requestAnimationFrame(_animate);
 
-                    ring.rotation.y = 0.05;
+                    this.ringsMesh.rotation.y = 0.05;
                 }
 
                 _animate();
             //
 
-            this.mesh.add(ring);
+            this.mesh.add(this.ringsMesh);
         }
     //
 
@@ -105,6 +126,7 @@ export class Saturn extends Orbit {
         this.createSaturn();
         this.saturnPos();
         this.createRings();
+        this.raycaster();
     }
 
     //Raycaster
@@ -114,10 +136,17 @@ export class Saturn extends Orbit {
             activateRaycaster.registerBody({
                 id: 'ic-saturn',
                 mesh: this.mesh,
-                defaultColor: this.props.color,
-                hoverColor: hoverColor,
+                defaultColor: this.props.color || this.props.emissive,
+                hoverColor: hoverColor || this.props.emissiveIntensity,
                 onClick: (e: MouseEvent) => this.mouseClick(e)
             });
+
+            activateRaycaster.registerBody({
+                id: 'ic-saturn--rings',
+                mesh: this.ringsMesh,
+                defaultColor: this.props.emissive,
+                hoverColor: this.props.emissive,
+            })
         }
 
         private mouseClick(e: MouseEvent): void {
@@ -132,6 +161,11 @@ export class Saturn extends Orbit {
                 }
             });
             window.dispatchEvent(event);
+
+            if(camera.isFollowingObject(this.mesh)) {
+                return;
+            }
+            
             camera.followObject(this.mesh, this.props.r);
         }
     //

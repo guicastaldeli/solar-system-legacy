@@ -8,18 +8,37 @@ export class Mars extends Orbit {
         super(props.orbitRadius, props.orbitSpeed);
         this.props = Mars.DEFAULT_PROPS;
         this.addMars();
-        this.raycaster();
     }
     createMars() {
+        //Loader
+        const loader = new THREE.TextureLoader();
+        //
         const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
-        const material = new THREE.MeshStandardMaterial({ color: this.props.color });
+        const material = new THREE.MeshStandardMaterial({
+            map: loader.load(this.props.texture),
+            emissive: this.props.emissive,
+            emissiveIntensity: this.props.emissiveIntensity
+        });
         this.mesh = new THREE.Mesh(geometry, material);
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
+        //Clouds
+        const cloudsGeometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
+        const cloudsMat = new THREE.MeshStandardMaterial({
+            alphaMap: loader.load(this.props.cloudsTexture),
+            transparent: true,
+            opacity: 1,
+            emissive: this.props.emissive,
+            emissiveIntensity: this.props.emissiveIntensity
+        });
+        const cloudsMesh = new THREE.Mesh(cloudsGeometry, cloudsMat);
+        cloudsMesh.scale.setScalar(1.015);
+        this.mesh.add(cloudsMesh);
         //Animation
         const _animate = () => {
             requestAnimationFrame(_animate);
             this.mesh.rotation.y += 0.01;
+            cloudsMesh.rotation.y += 0.015;
         };
         _animate();
         //
@@ -32,6 +51,7 @@ export class Mars extends Orbit {
     addMars() {
         this.createMars();
         this.marsPos();
+        this.raycaster();
     }
     //Raycaster
     raycaster() {
@@ -39,8 +59,8 @@ export class Mars extends Orbit {
         activateRaycaster.registerBody({
             id: 'ic-mars',
             mesh: this.mesh,
-            defaultColor: this.props.color,
-            hoverColor: hoverColor,
+            defaultColor: this.props.color || this.props.emissive,
+            hoverColor: hoverColor || this.props.emissiveIntensity,
             onClick: (e) => this.mouseClick(e)
         });
     }
@@ -56,6 +76,9 @@ export class Mars extends Orbit {
             }
         });
         window.dispatchEvent(event);
+        if (camera.isFollowingObject(this.mesh)) {
+            return;
+        }
         camera.followObject(this.mesh, this.props.r);
     }
 }
@@ -68,9 +91,10 @@ Mars.DEFAULT_PROPS = {
     y: 0,
     z: -15,
     color: 'rgb(231, 117, 51)',
-    texture: '',
-    emissive: 0,
-    emissiveIntensity: 0,
+    texture: '../../assets/textures/mars/2k_mars.jpg',
+    cloudsTexture: '../../assets/textures/mars/mars_cloud_texture_by_hmsmaidnelson_ddneq0x-pre.png',
+    emissive: 'rgb(231, 117, 51)',
+    emissiveIntensity: 0.1,
     orbitRadius: 145,
     orbitSpeed: 0.003
 };

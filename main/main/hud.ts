@@ -80,11 +80,10 @@ export class Hud {
 
         mesh.geometry.computeBoundingSphere();
         const boundingSphere = mesh.geometry.boundingSphere;
-        const planetRadius = boundingSphere ? boundingSphere.radius : 1;
 
         const pos = {
             x: 0,
-            y: 2,
+            y: 2.2,
             z: -105
         }
 

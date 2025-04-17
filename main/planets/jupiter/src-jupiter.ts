@@ -12,7 +12,7 @@ interface JupiterProps {
     z?: number,
     color?: string,
     texture?: string,
-    emissive?: number,
+    emissive?: string | number,
     emissiveIntensity?: number,
     orbitRadius?: number,
     orbitSpeed?: number,
@@ -30,9 +30,9 @@ export class Jupiter extends Orbit {
         z: -15,
 
         color: 'rgb(180, 183, 194)',
-        texture: '',
-        emissive: 0,
-        emissiveIntensity: 0,
+        texture: '../../assets/textures/jupiter/2k_jupiter.jpg',
+        emissive: 'rgb(180, 183, 194)',
+        emissiveIntensity: 0.1,
         orbitRadius: 180,
         orbitSpeed: 0.001
     }
@@ -45,22 +45,30 @@ export class Jupiter extends Orbit {
         super(props.orbitRadius, props.orbitSpeed);
 
         this.addJupiter();
-        this.raycaster();
     }
 
     private createJupiter(): void {
-        const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
-        const material = new THREE.MeshStandardMaterial({ color: this.props.color });
-        this.mesh = new THREE.Mesh(geometry, material);
+        //Loader
+            const loader = new THREE.TextureLoader();
+        //
 
-        this.mesh.castShadow = true,
+        const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
+        const material = new THREE.MeshStandardMaterial({ 
+            map: loader.load(this.props.texture),
+            emissive: this.props.emissive,
+            emissiveIntensity: this.props.emissiveIntensity
+        });
+            
+        this.mesh = new THREE.Mesh(geometry, material);
+        this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
 
         //Animation
-            const _animate = (): void => {
-                requestAnimationFrame(_animate);
-
+        const _animate = (): void => {
+            requestAnimationFrame(_animate);
+                    
                 this.mesh.rotation.y += 0.01;
+                    
             }
 
             _animate();
@@ -76,6 +84,7 @@ export class Jupiter extends Orbit {
     private addJupiter(): void {
         this.createJupiter();
         this.jupiterPos();
+        this.raycaster();
     }
 
     //Raycaster
@@ -85,8 +94,8 @@ export class Jupiter extends Orbit {
             activateRaycaster.registerBody({
                 id: 'ic-jupiter',
                 mesh: this.mesh,
-                defaultColor: this.props.color,
-                hoverColor: hoverColor,
+                defaultColor: this.props.color || this.props.emissive,
+                hoverColor: hoverColor || this.props.emissiveIntensity,
                 onClick: (e: MouseEvent) => this.mouseClick(e)
             });
         }
@@ -103,6 +112,11 @@ export class Jupiter extends Orbit {
                 }
             });
             window.dispatchEvent(event);
+            
+            if(camera.isFollowingObject(this.mesh)) {
+                return;
+            }
+
             camera.followObject(this.mesh, this.props.r);
         }
     //

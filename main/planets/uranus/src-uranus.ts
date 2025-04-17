@@ -12,7 +12,7 @@ interface UranusProps {
     z?: number,
     color?: string,
     texture?: string,
-    emissive?: number,
+    emissive?: string | number,
     emissiveIntensity?: number,
     orbitRadius?: number,
     orbitSpeed?: number,
@@ -30,9 +30,9 @@ export class Uranus extends Orbit {
         z: -15,
 
         color: 'rgb(100, 192, 231)',
-        texture: '',
-        emissive: 0,
-        emissiveIntensity: 0,
+        texture: '../../assets/textures/uranus/2k_uranus.jpg',
+        emissive: 'rgb(100, 192, 231)',
+        emissiveIntensity: 0.1,
         orbitRadius: 355,
         orbitSpeed: 0.0003
     }
@@ -45,12 +45,19 @@ export class Uranus extends Orbit {
         super(props.orbitRadius, props.orbitSpeed);
 
         this.addUranus();
-        this.raycaster();
     }
 
     private createUranus(): void {
+        //Loader
+            const loader = new THREE.TextureLoader();
+        //
+
         const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
-        const material = new THREE.MeshStandardMaterial({ color: this.props.color });
+        const material = new THREE.MeshStandardMaterial({ 
+            map: loader.load(this.props.texture),
+            emissive: this.props.emissive,
+            emissiveIntensity: this.props.emissiveIntensity 
+        });
         this.mesh = new THREE.Mesh(geometry, material);
 
         this.mesh.castShadow = true;
@@ -76,6 +83,7 @@ export class Uranus extends Orbit {
     private addUranus(): void {
         this.createUranus();
         this.uranusPos();
+        this.raycaster();
     }
 
     //Raycaster
@@ -85,8 +93,8 @@ export class Uranus extends Orbit {
             activateRaycaster.registerBody({
                 id: 'ic-uranus',
                 mesh: this.mesh,
-                defaultColor: this.props.color,
-                hoverColor: hoverColor,
+                defaultColor: this.props.color || this.props.emissive,
+                hoverColor: hoverColor || this.props.emissive,
                 onClick: (e: MouseEvent) => this.mouseClick(e)
             });
         }
@@ -103,6 +111,11 @@ export class Uranus extends Orbit {
                 }
             });
             window.dispatchEvent(event);
+
+            if(camera.isFollowingObject(this.mesh)) {
+                return;
+            }
+            
             camera.followObject(this.mesh, this.props.r);
         }
     //

@@ -8,11 +8,17 @@ export class Neptune extends Orbit {
         super(props.orbitRadius, props.orbitSpeed);
         this.props = Neptune.DEFAULT_PROPS;
         this.addNeptune();
-        this.raycaster();
     }
     createNeptune() {
+        //Loader
+        const loader = new THREE.TextureLoader();
+        //
         const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
-        const material = new THREE.MeshStandardMaterial({ color: this.props.color });
+        const material = new THREE.MeshStandardMaterial({
+            map: loader.load(this.props.texture),
+            emissive: this.props.emissive,
+            emissiveIntensity: this.props.emissiveIntensity
+        });
         this.mesh = new THREE.Mesh(geometry, material);
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
@@ -32,6 +38,7 @@ export class Neptune extends Orbit {
     addNeptune() {
         this.createNeptune();
         this.neptunePos();
+        this.raycaster();
     }
     //Raycaster
     raycaster() {
@@ -39,8 +46,8 @@ export class Neptune extends Orbit {
         activateRaycaster.registerBody({
             id: 'rc-neptune',
             mesh: this.mesh,
-            defaultColor: this.props.color,
-            hoverColor: hoverColor,
+            defaultColor: this.props.color || this.props.emissive,
+            hoverColor: hoverColor || this.props.emissive,
             onClick: (e) => this.mouseClick(e)
         });
     }
@@ -56,6 +63,9 @@ export class Neptune extends Orbit {
             }
         });
         window.dispatchEvent(event);
+        if (camera.isFollowingObject(this.mesh)) {
+            return;
+        }
         camera.followObject(this.mesh, this.props.r);
     }
 }
@@ -68,9 +78,9 @@ Neptune.DEFAULT_PROPS = {
     y: 0,
     z: -15,
     color: 'rgb(98, 132, 230)',
-    texture: '',
-    emissive: 0,
-    emissiveIntensity: 0,
+    texture: '../../assets/textures/neptune/2k_neptune.jpg',
+    emissive: 'rgb(98, 132, 230)',
+    emissiveIntensity: 0.1,
     orbitRadius: 305,
     orbitSpeed: 0.0001
 };

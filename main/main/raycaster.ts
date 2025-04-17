@@ -14,6 +14,7 @@ export class ActivateRaycaster {
     private mouse!: THREE.Vector2;
     private bodies: Body[] = [];
     private currentHoveredId: string | null = null;
+    private lastClickedId: string | null = null;
 
     constructor() {
         this.raycaster = new THREE.Raycaster();
@@ -56,17 +57,9 @@ export class ActivateRaycaster {
             const intersects = this.raycaster.intersectObject(body.mesh);
 
             if(intersects.length > 0) {
-                const event = new CustomEvent('bodyClicked', {
-                    detail: {
-                        id: body.id,
-                        name: '',
-                        position: body.mesh.position.clone(),
-                        color: body.defaultColor,
-                        mesh: body.mesh
-                    }
-                });
-                
-                window.dispatchEvent(event);
+                if(body.id === this.lastClickedId) {
+                    return;
+                }
                 
                 if(body.onClick) {
                     body.onClick(e);
@@ -74,6 +67,10 @@ export class ActivateRaycaster {
                 break;
             }
         }
+    }
+
+    public clearLastClicked(): void {
+        this.lastClickedId = null;
     }
 
     private setupEvents(): void {
@@ -89,7 +86,7 @@ export class ActivateRaycaster {
 
             if(prevBody) {
                 const material = prevBody.mesh.material as THREE.MeshStandardMaterial;
-                material.emissiveIntensity = 0.2;
+                material.emissiveIntensity = 0;
             }
         }
 
@@ -98,7 +95,7 @@ export class ActivateRaycaster {
 
             if(newBody) {
                 const material = newBody.mesh.material as THREE.MeshStandardMaterial;
-                material.emissiveIntensity = 1;
+                material.emissiveIntensity = 0.5;
             }
         }
 

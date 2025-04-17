@@ -8,18 +8,35 @@ export class Venus extends Orbit {
         super(props.orbitRadius, props.orbitSpeed);
         this.props = Venus.DEFAULT_PROPS;
         this.addVenus();
-        this.raycaster();
     }
     createVenus() {
+        //Loader
+        const loader = new THREE.TextureLoader();
+        //
         const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
-        const material = new THREE.MeshStandardMaterial({ color: this.props.color });
+        const material = new THREE.MeshStandardMaterial({
+            map: loader.load(this.props.texture),
+            emissive: this.props.emissive,
+            emissiveIntensity: this.props.emissiveIntensity
+        });
         this.mesh = new THREE.Mesh(geometry, material);
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
+        //Atmosphere
+        const aGeometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
+        const aMat = new THREE.MeshStandardMaterial({
+            map: loader.load(this.props.atmosphereTexture),
+            transparent: true,
+            opacity: 0.4,
+        });
+        const aMesh = new THREE.Mesh(aGeometry, aMat);
+        aMesh.scale.setScalar(1.015);
+        this.mesh.add(aMesh);
         //Animation
         const _animate = () => {
             requestAnimationFrame(_animate);
-            this.mesh.rotation.y += 0.01;
+            this.mesh.rotation.y += 0.002;
+            aMesh.rotation.y += 0.05;
         };
         _animate();
         //
@@ -32,6 +49,7 @@ export class Venus extends Orbit {
     addVenus() {
         this.createVenus();
         this.venusPos();
+        this.raycaster();
     }
     //Raycaster
     raycaster() {
@@ -39,8 +57,8 @@ export class Venus extends Orbit {
         activateRaycaster.registerBody({
             id: 'rc-venus',
             mesh: this.mesh,
-            defaultColor: this.props.color,
-            hoverColor: hoverColor,
+            defaultColor: this.props.color || this.props.emissive,
+            hoverColor: hoverColor || this.props.emissive,
             onClick: (e) => this.mouseClick(e)
         });
     }
@@ -56,6 +74,9 @@ export class Venus extends Orbit {
             }
         });
         window.dispatchEvent(event);
+        if (camera.isFollowingObject(this.mesh)) {
+            return;
+        }
         camera.followObject(this.mesh, this.props.r);
     }
 }
@@ -68,9 +89,10 @@ Venus.DEFAULT_PROPS = {
     y: 0,
     z: -15,
     color: 'rgb(194, 184, 171)',
-    texture: '',
-    emissive: 0,
-    emissiveIntensity: 0,
+    texture: '../../assets/textures/venus/2k_venus_surface.jpg',
+    atmosphereTexture: '../../assets/textures/venus/2k_venus_atmosphere.jpg',
+    emissive: 'rgb(194, 184, 171)',
+    emissiveIntensity: 0.1,
     orbitRadius: 85,
     orbitSpeed: 0.01
 };

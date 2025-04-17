@@ -8,14 +8,20 @@ export class Jupiter extends Orbit {
         super(props.orbitRadius, props.orbitSpeed);
         this.props = Jupiter.DEFAULT_PROPS;
         this.addJupiter();
-        this.raycaster();
     }
     createJupiter() {
+        //Loader
+        const loader = new THREE.TextureLoader();
+        //
         const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
-        const material = new THREE.MeshStandardMaterial({ color: this.props.color });
+        const material = new THREE.MeshStandardMaterial({
+            map: loader.load(this.props.texture),
+            emissive: this.props.emissive,
+            emissiveIntensity: this.props.emissiveIntensity
+        });
         this.mesh = new THREE.Mesh(geometry, material);
-        this.mesh.castShadow = true,
-            this.mesh.receiveShadow = true;
+        this.mesh.castShadow = true;
+        this.mesh.receiveShadow = true;
         //Animation
         const _animate = () => {
             requestAnimationFrame(_animate);
@@ -32,6 +38,7 @@ export class Jupiter extends Orbit {
     addJupiter() {
         this.createJupiter();
         this.jupiterPos();
+        this.raycaster();
     }
     //Raycaster
     raycaster() {
@@ -39,8 +46,8 @@ export class Jupiter extends Orbit {
         activateRaycaster.registerBody({
             id: 'ic-jupiter',
             mesh: this.mesh,
-            defaultColor: this.props.color,
-            hoverColor: hoverColor,
+            defaultColor: this.props.color || this.props.emissive,
+            hoverColor: hoverColor || this.props.emissiveIntensity,
             onClick: (e) => this.mouseClick(e)
         });
     }
@@ -56,6 +63,9 @@ export class Jupiter extends Orbit {
             }
         });
         window.dispatchEvent(event);
+        if (camera.isFollowingObject(this.mesh)) {
+            return;
+        }
         camera.followObject(this.mesh, this.props.r);
     }
 }
@@ -68,9 +78,9 @@ Jupiter.DEFAULT_PROPS = {
     y: 0,
     z: -15,
     color: 'rgb(180, 183, 194)',
-    texture: '',
-    emissive: 0,
-    emissiveIntensity: 0,
+    texture: '../../assets/textures/jupiter/2k_jupiter.jpg',
+    emissive: 'rgb(180, 183, 194)',
+    emissiveIntensity: 0.1,
     orbitRadius: 180,
     orbitSpeed: 0.001
 };

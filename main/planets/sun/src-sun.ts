@@ -1,4 +1,7 @@
 import * as THREE from 'three';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
 import { camera } from '../../main/camera.js';
 import { activateRaycaster } from '../../main/raycaster.js';
@@ -26,9 +29,9 @@ export class Sun {
         y: 0,
         z: -15,
         
-        color: '',
+        color: 'rgb(255, 174, 0)',
         texture: '../../assets/textures/sun/2k_sun.jpg',
-        emissive: 'rgb(255, 208, 127)',
+        emissive: 'rgb(255, 174, 0)',
         emissiveIntensity: 0.1,
     }
 
@@ -41,16 +44,17 @@ export class Sun {
         this.scene = scene;
 
         this.addSun();
-        this.raycaster();
     }
 
     private createSun(): void {
-        const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
-
         //Loader
-        const loader = new THREE.TextureLoader();
+            const loader = new THREE.TextureLoader();
+        //
+
+        const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
         const material = new THREE.MeshStandardMaterial({ 
-            map: loader.load(this.props.texture), 
+            map: loader.load(this.props.texture),
+            color: this.props.color,
             emissive: this.props.emissive, 
             emissiveIntensity: this.props.emissiveIntensity 
         });
@@ -61,7 +65,7 @@ export class Sun {
         //Lightning
             const pointLight = new THREE.PointLight();
             pointLight.color = new THREE.Color('rgb(255, 255, 255)');
-            pointLight.intensity = 6;
+            pointLight.intensity = 2;
             pointLight.distance = 0;
             pointLight.decay = 0;
 
@@ -90,6 +94,7 @@ export class Sun {
     private addSun(): void {
         this.createSun();
         this.sunPos();
+        this.raycaster();
     }
 
     //Raycaster
@@ -117,6 +122,11 @@ export class Sun {
                 }
             });
             window.dispatchEvent(event);
+
+            if(camera.isFollowingObject(this.mesh)) {
+                return;
+            }
+            
             camera.followObject(this.mesh, this.props.r);
         }
     //

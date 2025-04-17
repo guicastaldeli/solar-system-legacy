@@ -8,11 +8,17 @@ export class Uranus extends Orbit {
         super(props.orbitRadius, props.orbitSpeed);
         this.props = Uranus.DEFAULT_PROPS;
         this.addUranus();
-        this.raycaster();
     }
     createUranus() {
+        //Loader
+        const loader = new THREE.TextureLoader();
+        //
         const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
-        const material = new THREE.MeshStandardMaterial({ color: this.props.color });
+        const material = new THREE.MeshStandardMaterial({
+            map: loader.load(this.props.texture),
+            emissive: this.props.emissive,
+            emissiveIntensity: this.props.emissiveIntensity
+        });
         this.mesh = new THREE.Mesh(geometry, material);
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
@@ -32,6 +38,7 @@ export class Uranus extends Orbit {
     addUranus() {
         this.createUranus();
         this.uranusPos();
+        this.raycaster();
     }
     //Raycaster
     raycaster() {
@@ -39,8 +46,8 @@ export class Uranus extends Orbit {
         activateRaycaster.registerBody({
             id: 'ic-uranus',
             mesh: this.mesh,
-            defaultColor: this.props.color,
-            hoverColor: hoverColor,
+            defaultColor: this.props.color || this.props.emissive,
+            hoverColor: hoverColor || this.props.emissive,
             onClick: (e) => this.mouseClick(e)
         });
     }
@@ -56,6 +63,9 @@ export class Uranus extends Orbit {
             }
         });
         window.dispatchEvent(event);
+        if (camera.isFollowingObject(this.mesh)) {
+            return;
+        }
         camera.followObject(this.mesh, this.props.r);
     }
 }
@@ -68,9 +78,9 @@ Uranus.DEFAULT_PROPS = {
     y: 0,
     z: -15,
     color: 'rgb(100, 192, 231)',
-    texture: '',
-    emissive: 0,
-    emissiveIntensity: 0,
+    texture: '../../assets/textures/uranus/2k_uranus.jpg',
+    emissive: 'rgb(100, 192, 231)',
+    emissiveIntensity: 0.1,
     orbitRadius: 355,
     orbitSpeed: 0.0003
 };

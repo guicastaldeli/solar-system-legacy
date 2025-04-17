@@ -11,7 +11,8 @@ import { Sun } from '../planets/sun/src-sun.js';
 import { Mercury } from '../planets/mercury/src-mercury.js';
 import { Venus } from '../planets/venus/src-venus.js';
 import { Earth } from '../planets/earth/src-earth.js';
-import { Mars } from '../planets/mars/mars.js';
+import { Moon } from '../planets/moon/src-moon.js';
+import { Mars } from '../planets/mars/src-mars.js';
 import { Jupiter } from '../planets/jupiter/src-jupiter.js';
 import { Saturn } from '../planets/saturn/src-saturn.js';
 import { Uranus } from '../planets/uranus/src-uranus.js';
@@ -31,16 +32,20 @@ class Main {
     private skybox!: Skybox;
 
     //Planets
-        private planets: Orbit[] = [];
-        private sun!: Sun;
-        private mercury!: Mercury;
-        private venus!: Venus;
-        private earth!: Earth;
-        private mars!: Mars;
-        private jupiter!: Jupiter;
-        private saturn!: Saturn;
-        private uranus!: Uranus;
-        private neptune!: Neptune;
+        private planets: any[] = [];
+
+        //List
+            private sun?: Sun;
+            private mercury?: Mercury;
+            private venus?: Venus;
+            private earth?: Earth;
+            private moon?: Moon;
+            private mars?: Mars;
+            private jupiter?: Jupiter;
+            private saturn?: Saturn;
+            private uranus?: Uranus;
+            private neptune?: Neptune;
+        //
     //
 
     constructor() {
@@ -50,62 +55,46 @@ class Main {
     private async initScene(): Promise<void> {
         this.scene = new THREE.Scene();
 
-        //Render Skybox
-        this.skybox = new Skybox(500);
+        //Render Skyboxs
+        this.skybox = new Skybox(300);
         await this.skybox.ready();
         this.scene.add(this.skybox.points);
     }
 
     private renderPlanets(): void {
-        //Sun
-        const renderSun = new Sun(this.scene);
-        this.scene.add(renderSun.mesh);
+        type Planets = new (...args: any[]) => any;
+        interface initPlanets { p: Planets, args: any[]; }
 
-        //Mercury
-        const renderMercury = new Mercury();
-        this.planets.push(renderMercury);
-        this.scene.add(renderMercury.mesh);
+        const planetList : initPlanets[] = [
+            { p: Sun, args: [this.scene] },
+            { p: Mercury, args: [] },
+            { p: Venus, args: [] },
+            { p: Earth, args: [] },
+            { p: Mars, args: [] },
+            { p: Jupiter, args: [] },
+            { p: Saturn, args: [] },
+            { p: Uranus, args: [] },
+            { p: Neptune, args: [] }
+        ];
 
-        //Venus
-        const renderVenus = new Venus();
-        this.planets.push(renderVenus);
-        this.scene.add(renderVenus.mesh);
+        for(const { p, args } of planetList) {
+            const renderPlanets = new p(...args);
+            this.planets.push(renderPlanets);
+            this.scene.add(renderPlanets.mesh);
+        }
 
-        //Earth
-        const renderEarth = new Earth();
-        this.planets.push(renderEarth);
-        this.scene.add(renderEarth.mesh);
-
-        //Mars
-        const renderMars = new Mars();
-        this.planets.push(renderMars);
-        this.scene.add(renderMars.mesh);
-
-        //Jupiter
-        const renderJupiter = new Jupiter();
-        this.planets.push(renderJupiter);
-        this.scene.add(renderJupiter.mesh);
-
-        //Saturn
-        const renderSaturn = new Saturn();
-        this.planets.push(renderSaturn);
-        this.scene.add(renderSaturn.mesh);
-
-        //Uranus
-        const renderUranus = new Uranus();
-        this.planets.push(renderUranus);
-        this.scene.add(renderUranus.mesh);
-
-        //Neptune
-        const renderNeptune = new Neptune();
-        this.planets.push(renderNeptune);
-        this.scene.add(renderNeptune.mesh);
+        const earth = this.planets.find(p => p instanceof Earth);
+        if(earth) {
+            this.moon = new Moon(earth);
+            this.planets.push(this.moon);
+            this.scene.add(this.moon.mesh);
+        }
     }
 
     //Lightning
     private setupLightning(): void {
         //Ambient
-        const ambientLight = new THREE.AmbientLight('rgb(255, 255, 255)', 0.05);
+        const ambientLight = new THREE.AmbientLight('rgb(108, 108, 108)', 0.5);
         this.scene.add(ambientLight);
     }
 
@@ -149,14 +138,15 @@ class Main {
                 this.skybox.update();
 
                 //Planets
-                this.planets.forEach(p => p.update());
+                this.planets.forEach(p => { 
+                    if(typeof p.update === 'function') p.update();
+                });
 
                 //Camera
                 camera.update();
                 if(camera.controls) camera.controls.update();
                 
                 //Render
-                camera.camera.updateProjectionMatrix()
                 this.renderer.render(this.scene, camera.camera);
             }
 

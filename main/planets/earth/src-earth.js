@@ -17,15 +17,25 @@ export class Earth extends Orbit {
         const props = Object.assign(Object.assign({}, Earth.DEFAULT_PROPS), options);
         super(props.orbitRadius, props.orbitSpeed);
         this.props = Earth.DEFAULT_PROPS;
-        this.addEarth();
-        this.raycaster();
+        this.resolveReady = () => { };
+        //Add Earth
+        this._readyPromise = new Promise((res) => {
+            this.resolveReady = res;
+        });
+        this.addEarth().then(() => this.resolveReady());
+        //
     }
     createEarth() {
         return __awaiter(this, void 0, void 0, function* () {
-            const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
-            //Texture
+            //Loader
             const loader = new THREE.TextureLoader();
-            const material = new THREE.MeshStandardMaterial({ map: loader.load('../../assets/textures/earth/00_earthmap1k.jpg') });
+            //
+            const geometry = new THREE.IcosahedronGeometry(this.props.r, this.props.d);
+            const material = new THREE.MeshStandardMaterial({
+                map: loader.load(this.props.texture),
+                emissive: this.props.emissive,
+                emissiveIntensity: this.props.emissiveIntensity
+            });
             this.mesh = new THREE.Mesh(geometry, material);
             this.mesh.castShadow = true;
             this.mesh.receiveShadow = true;
@@ -36,7 +46,7 @@ export class Earth extends Orbit {
             this.mesh.add(glowMesh);
             //Clouds
             const cloudsMat = new THREE.MeshStandardMaterial({
-                map: loader.load('../../assets/textures/earth/cloud_combined_2048.jpg'),
+                map: loader.load(this.props.cloudsTexture),
                 opacity: 0.4,
                 blending: THREE.AdditiveBlending
             });
@@ -63,6 +73,7 @@ export class Earth extends Orbit {
         return __awaiter(this, void 0, void 0, function* () {
             this.createEarth();
             this.earthPos();
+            this.raycaster();
         });
     }
     //Raycaster
@@ -71,8 +82,8 @@ export class Earth extends Orbit {
         activateRaycaster.registerBody({
             id: 'ic-earth',
             mesh: this.mesh,
-            defaultColor: this.props.color,
-            hoverColor: hoverColor,
+            defaultColor: this.props.color || this.props.emissive,
+            hoverColor: hoverColor || this.props.emissive,
             onClick: (e) => this.mouseClick(e)
         });
     }
@@ -88,6 +99,9 @@ export class Earth extends Orbit {
             }
         });
         window.dispatchEvent(event);
+        if (camera.isFollowingObject(this.mesh)) {
+            return;
+        }
         camera.followObject(this.mesh, this.props.r);
     }
 }
@@ -100,9 +114,10 @@ Earth.DEFAULT_PROPS = {
     y: 0,
     z: -15,
     color: 'rgb(115, 138, 184)',
-    texture: '',
-    emissive: 0,
-    emissiveIntensity: 0,
+    texture: '../../assets/textures/earth/00_earthmap1k.jpg',
+    cloudsTexture: '../../assets/textures/earth/cloud_combined_2048.jpg',
+    emissive: 'rgb(102, 117, 147)',
+    emissiveIntensity: 0.1,
     orbitRadius: 115,
     orbitSpeed: 0.005
 };
