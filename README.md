@@ -9,5 +9,5 @@ Enjoy! :))
 
 ## Screenshots
 
-![App Screenshot](https://prnt.sc/uNopj66SZqh0)
+![App Screenshot](./assets/img/page-cover.png);
 
