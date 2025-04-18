@@ -40,17 +40,24 @@ export class Moon {
 
     protected props: Required<MoonProps> = Moon.DEFAULT_PROPS;
     public mesh!: THREE.Mesh;
-    private earth!: Earth;
+    private earth: Earth | undefined;
     private angle: number = 0;
 
-    constructor(earth: Earth, options: MoonProps = {}) {
+    constructor(private planets: any[], options: MoonProps = {}) {
         const props = { ...Moon.DEFAULT_PROPS, ...options };
         this.props = props;
-        this.earth = earth;
+        this.earth = this.findEarth();
         this.angle = Math.random() * Math.PI * 2;
 
         this.addMoon();
         this.initialPos();
+    }
+
+    //Find Earth
+    private findEarth(): Earth {
+        const earth = this.planets.find(p => p instanceof Earth);
+        if(!earth) throw new Error('Earth not found');
+        return earth;
     }
 
     private createMoon(): void {
@@ -132,11 +139,7 @@ export class Moon {
             }
         });
         window.dispatchEvent(event);
-
-        if(camera.isFollowingObject(this.mesh)) {
-            return;
-        }
-
+        if(camera.isFollowingObject(this.mesh)) return;
         camera.followObject(this.mesh, this.props.r);
     }
 }

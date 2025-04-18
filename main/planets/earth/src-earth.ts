@@ -141,12 +141,8 @@ export class Earth extends Orbit {
                 }
             });
             window.dispatchEvent(event);
-
-            if(camera.isFollowingObject(this.mesh)) {
-                return;
-            }
-            
-            camera.followObject(this.mesh, this.props.r);
+            if(camera.isFollowingObject(this.mesh)) return;
+            camera.followObject(this.mesh, this.props.r, this.props.orbitSpeed);
         }
     //
 }

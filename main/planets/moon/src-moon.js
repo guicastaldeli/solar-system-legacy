@@ -1,16 +1,25 @@
 import * as THREE from 'three';
 import { camera } from '../../main/camera.js';
 import { activateRaycaster } from '../../main/raycaster.js';
+import { Earth } from '../earth/src-earth.js';
 export class Moon {
-    constructor(earth, options = {}) {
+    constructor(planets, options = {}) {
+        this.planets = planets;
         this.props = Moon.DEFAULT_PROPS;
         this.angle = 0;
         const props = Object.assign(Object.assign({}, Moon.DEFAULT_PROPS), options);
         this.props = props;
-        this.earth = earth;
+        this.earth = this.findEarth();
         this.angle = Math.random() * Math.PI * 2;
         this.addMoon();
         this.initialPos();
+    }
+    //Find Earth
+    findEarth() {
+        const earth = this.planets.find(p => p instanceof Earth);
+        if (!earth)
+            throw new Error('Earth not found');
+        return earth;
     }
     createMoon() {
         //Loader
@@ -79,9 +88,8 @@ export class Moon {
             }
         });
         window.dispatchEvent(event);
-        if (camera.isFollowingObject(this.mesh)) {
+        if (camera.isFollowingObject(this.mesh))
             return;
-        }
         camera.followObject(this.mesh, this.props.r);
     }
 }

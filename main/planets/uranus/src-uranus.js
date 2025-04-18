@@ -63,9 +63,8 @@ export class Uranus extends Orbit {
             }
         });
         window.dispatchEvent(event);
-        if (camera.isFollowingObject(this.mesh)) {
+        if (camera.isFollowingObject(this.mesh))
             return;
-        }
         camera.followObject(this.mesh, this.props.r);
     }
 }

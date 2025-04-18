@@ -22,6 +22,8 @@ class Camera {
         this.maxLockedDistance = 1;
         this.followingObject = null;
         this.isFollowing = false;
+        this.currentOrbitSpeed = 0;
+        this.baseFollowSpeed = 0.1;
         this.currentFollowDistance = 10;
     }
     checkSkyboxCollision() {
@@ -66,7 +68,7 @@ class Camera {
         domElement.addEventListener('mousemove', (e) => {
             if (!isPanning || !this.controls.enabled)
                 return;
-            const panSpeed = 0.005;
+            const panSpeed = 0.008;
             const deltaX = e.clientX - lastPos.x;
             const deltaY = e.clientY - lastPos.y;
             this.camera.position.x -= deltaX * panSpeed;
@@ -88,18 +90,14 @@ class Camera {
         controlsDolly.dollyOut = (dollyScale) => {
             if (!this.controls.enabled)
                 return;
-            const direction = new THREE.Vector3()
-                .subVectors(this.camera.position, this.controls.target)
-                .normalize();
+            const direction = new THREE.Vector3().subVectors(this.camera.position, this.controls.target).normalize();
             const zoomMov = dollyScale * dollySpeed;
             this.camera.position.addScaledVector(direction, zoomMov);
         };
         controlsDolly.dollyIn = (dollyScale) => {
             if (!this.controls.enabled)
                 return;
-            const direction = new THREE.Vector3()
-                .subVectors(this.camera.position, this.controls.target)
-                .normalize();
+            const direction = new THREE.Vector3().subVectors(this.camera.position, this.controls.target).normalize();
             const zoomMov = dollyScale * dollySpeed;
             this.camera.position.addScaledVector(direction, -zoomMov);
         };
@@ -110,11 +108,8 @@ class Camera {
                 this.currentFollowDistance = this.camera.position.distanceTo(this.followingObject.position);
                 const clampledDistance = THREE.MathUtils.clamp(this.currentFollowDistance, this.minLockedDistance, this.maxLockedDistance);
                 if (this.currentFollowDistance !== clampledDistance) {
-                    const direction = new THREE.Vector3()
-                        .subVectors(this.camera.position, this.followingObject.position)
-                        .normalize();
-                    this.camera.position.copy(this.followingObject.position)
-                        .add(direction.multiplyScalar(clampledDistance));
+                    const direction = new THREE.Vector3().subVectors(this.camera.position, this.followingObject.position).normalize();
+                    this.camera.position.copy(this.followingObject.position).add(direction.multiplyScalar(clampledDistance));
                     this.currentFollowDistance = clampledDistance;
                 }
             }
@@ -146,12 +141,14 @@ class Camera {
     isFollowingObject(object) {
         return this.isFollowing && this.followingObject === object;
     }
-    followObject(object, planetRadius = 1) {
+    followObject(object, planetRadius = 1, orbitSpeed = 0.005) {
         this.followingObject = object;
+        this.planetRadius = planetRadius;
         this.isFollowing = true;
         this.isLocked = true;
         this.isMoving = false;
-        this.planetRadius = planetRadius;
+        this.currentOrbitSpeed = orbitSpeed;
+        this.baseFollowSpeed = orbitSpeed;
         this.savedState = {
             position: this.camera.position.clone(),
             target: this.controls.target.clone(),
@@ -159,12 +156,8 @@ class Camera {
         this.minLockedDistance = planetRadius * 1.8;
         this.maxLockedDistance = planetRadius * 2.5;
         this.currentFollowDistance = this.camera.position.distanceTo(object.position);
-        const actualMinDistance = Math.max(0.1, this.minLockedDistance * planetRadius);
-        const actualMaxDistance = Math.max(actualMinDistance + 0.1, this.maxLockedDistance * planetRadius);
-        this.currentFollowDistance = THREE.MathUtils.clamp(this.currentFollowDistance, actualMinDistance, actualMaxDistance);
-        const direction = new THREE.Vector3()
-            .subVectors(this.camera.position, object.position)
-            .normalize();
+        this.currentFollowDistance = THREE.MathUtils.clamp(this.currentFollowDistance, this.minLockedDistance, this.maxLockedDistance);
+        const direction = new THREE.Vector3().subVectors(this.camera.position, object.position).normalize();
         const newPos = object.position.clone().add(direction.multiplyScalar(this.currentFollowDistance));
         this.camera.position.copy(newPos);
         this.controls.target.copy(object.position);
@@ -218,15 +211,12 @@ class Camera {
     update() {
         if (this.isFollowing && this.followingObject) {
             this.controls.target.copy(this.followingObject.position);
-            const direction = new THREE.Vector3()
-                .subVectors(this.camera.position, this.followingObject.position)
-                .normalize();
+            const direction = new THREE.Vector3().subVectors(this.camera.position, this.followingObject.position).normalize();
             this.camera.position.copy(this.followingObject.position).add(direction.multiplyScalar(this.currentFollowDistance));
         }
         this.checkSkyboxCollision();
-        if (this.controls) {
+        if (this.controls)
             this.controls.update();
-        }
         if (this.isMoving) {
             let targetPos;
             let targetLookAt;
@@ -251,9 +241,8 @@ class Camera {
             }
             this.checkSkyboxCollision();
         }
-        if (this.controls) {
+        if (this.controls)
             this.controls.update();
-        }
     }
 }
 export const camera = new Camera();

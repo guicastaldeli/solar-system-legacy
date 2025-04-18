@@ -6,11 +6,16 @@ export abstract class Orbit {
     protected orbitSpeed: number = 0;
     protected angle: number = 0;
     protected props: any;
+    private initialPos: THREE.Vector3 = new THREE.Vector3();
 
     constructor(orbitRadius: number, orbitSpeed: number) {
         this.orbitRadius = orbitRadius;
         this.orbitSpeed = orbitSpeed;
         this.angle = Math.random() * Math.PI * 2;
+    }
+
+    public setInitialPos(position: THREE.Vector3): void {
+        this.initialPos.copy(position);
     }
 
     protected updateOrbit(): void {

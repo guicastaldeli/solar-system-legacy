@@ -63,10 +63,9 @@ export class Mercury extends Orbit {
             }
         });
         window.dispatchEvent(event);
-        if (camera.isFollowingObject(this.mesh)) {
+        if (camera.isFollowingObject(this.mesh))
             return;
-        }
-        camera.followObject(this.mesh, this.props.r);
+        camera.followObject(this.mesh, this.props.r, this.props.orbitSpeed);
     }
 }
 Mercury.DEFAULT_PROPS = {

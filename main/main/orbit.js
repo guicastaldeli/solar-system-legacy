@@ -1,12 +1,17 @@
+import * as THREE from 'three';
 export class Orbit {
     constructor(orbitRadius, orbitSpeed) {
         this.mesh = null;
         this.orbitRadius = 0;
         this.orbitSpeed = 0;
         this.angle = 0;
+        this.initialPos = new THREE.Vector3();
         this.orbitRadius = orbitRadius;
         this.orbitSpeed = orbitSpeed;
         this.angle = Math.random() * Math.PI * 2;
+    }
+    setInitialPos(position) {
+        this.initialPos.copy(position);
     }
     updateOrbit() {
         if (!this.mesh)
