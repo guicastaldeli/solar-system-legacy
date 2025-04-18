@@ -68,7 +68,7 @@ class Camera {
         domElement.addEventListener('mousemove', (e) => {
             if (!isPanning || !this.controls.enabled)
                 return;
-            const panSpeed = 0.008;
+            const panSpeed = 0.005;
             const deltaX = e.clientX - lastPos.x;
             const deltaY = e.clientY - lastPos.y;
             this.camera.position.x -= deltaX * panSpeed;
@@ -143,9 +143,7 @@ class Camera {
     }
     followObject(object, planetRadius = 1, orbitSpeed = 0.005) {
         this.followingObject = object;
-        this.planetRadius = planetRadius;
         this.isFollowing = true;
-        this.isLocked = true;
         this.isMoving = false;
         this.currentOrbitSpeed = orbitSpeed;
         this.baseFollowSpeed = orbitSpeed;
@@ -161,6 +159,7 @@ class Camera {
         const newPos = object.position.clone().add(direction.multiplyScalar(this.currentFollowDistance));
         this.camera.position.copy(newPos);
         this.controls.target.copy(object.position);
+        direction.y += 10;
         if (this.controls) {
             this.controls.enableZoom = true;
             this.controls.minDistance = this.minLockedDistance;

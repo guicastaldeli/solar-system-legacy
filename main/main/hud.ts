@@ -68,7 +68,7 @@ export class Hud {
         
         const textMesh = new THREE.Mesh(geometry, [
             new THREE.MeshBasicMaterial({ color: 'rgb(255, 255, 255)' }),
-            new THREE.MeshBasicMaterial({ color: 'rgb(43, 43, 43)' }),
+            new THREE.MeshBasicMaterial({ color: 'rgb(20, 20, 20)' }),
         ]);
 
         geometry.computeBoundingBox();

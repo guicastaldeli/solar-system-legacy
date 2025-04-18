@@ -3,8 +3,40 @@ body {
     overflow: hidden;
 }
 
-#unlock-camera {
-    position: absolute;
-    top: 0;
-    left: 0;
-}
+/* Unlock Camera Button */
+    $bgColor: rgb(185, 190, 185);
+    $bShadow: rgb(34, 35, 34);
+    
+    $hvColor: rgb(136, 136, 136);
+    $txtColor: rgb(31, 31, 31);
+    $bShadowHv: rgb(45, 45, 45);
+
+    #unlock-camera {
+        position: absolute;
+        bottom: 1rem;
+        left: 1rem;
+
+        padding: 1rem 3rem;
+
+        border: 0;
+
+        background-color: $bgColor;
+        color: $txtColor;
+
+        box-shadow: 5px 5px 0px $bShadow;
+
+        /* text */
+        font-family: 'Home Video';
+        font-size: 2rem;
+
+        /* hover */
+            transition: background-color 0.13s ease;
+            transition: box-shadow 0.13s ease;
+            
+            &:hover {
+                background-color: $hvColor;
+                box-shadow: 5px 5px 0px $bShadowHv;
+            }
+        /* */
+    }
+/* */

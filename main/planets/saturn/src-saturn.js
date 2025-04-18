@@ -40,25 +40,40 @@ export class Saturn extends Orbit {
         //Loader
         const loader = new THREE.TextureLoader();
         //
-        const innerRadius = this.props.r + 4;
+        const innerRadius = this.props.r + 3.5;
         const outerRadius = this.props.r + 15;
-        const geometry = new THREE.RingGeometry(innerRadius, outerRadius, 64);
+        const geometry = new THREE.RingGeometry(innerRadius, outerRadius, 256);
+        const pos = geometry.attributes.position;
+        const uvs = [];
+        const center = new THREE.Vector3(0, 0, 0);
+        for (let i = 0; i < pos.count; i++) {
+            const vertex = new THREE.Vector3().fromBufferAttribute(pos, i);
+            const radius = vertex.distanceTo(center);
+            const u = (radius - innerRadius) / (outerRadius - innerRadius);
+            uvs.push(u, 0.5);
+        }
+        geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+        const texture = loader.load(this.props.ringsTexture);
+        texture.wrapS = THREE.ClampToEdgeWrapping;
+        texture.wrapT = THREE.ClampToEdgeWrapping;
+        texture.minFilter = THREE.LinearFilter;
+        texture.magFilter = THREE.LinearFilter;
         const material = new THREE.MeshStandardMaterial({
-            map: loader.load(this.props.ringsTexture),
+            map: texture,
             side: THREE.DoubleSide,
             transparent: true,
-            opacity: 0.9,
+            opacity: 0.8,
             emissive: this.props.emissive,
             emissiveIntensity: this.props.emissiveIntensity
         });
         this.ringsMesh = new THREE.Mesh(geometry, material);
         this.ringsMesh.castShadow = true;
         this.ringsMesh.receiveShadow = true;
-        this.ringsMesh.rotation.x = 30;
+        this.ringsMesh.rotation.set(-Math.PI / 2.1, 0, 0);
         //Animation
         const _animate = () => {
             requestAnimationFrame(_animate);
-            this.ringsMesh.rotation.y = 0.05;
+            this.ringsMesh.rotation.y = 0.001;
         };
         _animate();
         //
