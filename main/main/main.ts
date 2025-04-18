@@ -5,8 +5,6 @@ import { Hud } from './hud.js';
 
 import { Skybox } from './skybox/skybox.js';
 
-import { Orbit } from './orbit.js';
-
 import { Sun } from '../planets/sun/src-sun.js';
 import { Mercury } from '../planets/mercury/src-mercury.js';
 import { Venus } from '../planets/venus/src-venus.js';
@@ -61,12 +59,12 @@ class Main {
         this.scene.add(this.skybox.points);
     }
 
-    private renderPlanets(): void {
+    private async renderPlanets(): Promise<void> {
         type Planets = new (...args: any[]) => any;
         interface initPlanets { p: Planets, args: any[]; }
 
         const planetList : initPlanets[] = [
-            { p: Sun, args: [this.scene] },
+            { p: Sun, args: [this.scene, this.renderer] },
             { p: Mercury, args: [] },
             { p: Venus, args: [] },
             { p: Earth, args: [] },
@@ -79,15 +77,19 @@ class Main {
         ];
 
         for(const { p, args } of planetList) {
-            const renderPlanets = new p(...args);
-            this.planets.push(renderPlanets);
-            this.scene.add(renderPlanets.mesh);
+            const renderPlanet = new p(...args);
+            this.planets.push(renderPlanet);
+            
+            if(renderPlanet.ready && typeof renderPlanet.ready === 'function') {
+                await renderPlanet.ready();
+            }
+
+            this.scene.add(renderPlanet.mesh);
         }
     }
 
     //Lightning
     private setupLightning(): void {
-        //Ambient
         const ambientLight = new THREE.AmbientLight('rgb(108, 108, 108)', 0.5);
         this.scene.add(ambientLight);
     }
@@ -154,13 +156,12 @@ class Main {
     private init() {
         this.initScene();
         camera.setupCamera(this.w, this.h);
+        this.render();
+        camera.setupControls(this.renderer);
 
         this.setupLightning();
 
         this.renderPlanets();
-
-        this.render();
-        camera.setupControls(this.renderer);
     }
 }
 

@@ -56,16 +56,14 @@ export class Hud {
             geometry.translate(centerOffset, 0, 0);
         }
         mesh.geometry.computeBoundingSphere();
-        const boundingSphere = mesh.geometry.boundingSphere;
         const pos = {
-            x: 0,
+            x: -0.15,
             y: 2.2,
             z: -105
         };
-        textMesh.position.x = pos.x - 0.15;
+        textMesh.position.x = pos.x;
         textMesh.position.y = pos.y;
         textMesh.position.z = pos.z;
-        //console.log(textMesh.position)
         this.textMeshes[id] = textMesh;
         camera.hudGroup.add(textMesh);
     }

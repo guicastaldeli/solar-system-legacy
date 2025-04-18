@@ -50,27 +50,31 @@ class Main {
         });
     }
     renderPlanets() {
-        const planetList = [
-            { p: Sun, args: [this.scene] },
-            { p: Mercury, args: [] },
-            { p: Venus, args: [] },
-            { p: Earth, args: [] },
-            { p: Moon, args: [this.planets] },
-            { p: Mars, args: [] },
-            { p: Jupiter, args: [] },
-            { p: Saturn, args: [] },
-            { p: Uranus, args: [] },
-            { p: Neptune, args: [] }
-        ];
-        for (const { p, args } of planetList) {
-            const renderPlanets = new p(...args);
-            this.planets.push(renderPlanets);
-            this.scene.add(renderPlanets.mesh);
-        }
+        return __awaiter(this, void 0, void 0, function* () {
+            const planetList = [
+                { p: Sun, args: [this.scene, this.renderer] },
+                { p: Mercury, args: [] },
+                { p: Venus, args: [] },
+                { p: Earth, args: [] },
+                { p: Moon, args: [this.planets] },
+                { p: Mars, args: [] },
+                { p: Jupiter, args: [] },
+                { p: Saturn, args: [] },
+                { p: Uranus, args: [] },
+                { p: Neptune, args: [] }
+            ];
+            for (const { p, args } of planetList) {
+                const renderPlanet = new p(...args);
+                this.planets.push(renderPlanet);
+                if (renderPlanet.ready && typeof renderPlanet.ready === 'function') {
+                    yield renderPlanet.ready();
+                }
+                this.scene.add(renderPlanet.mesh);
+            }
+        });
     }
     //Lightning
     setupLightning() {
-        //Ambient
         const ambientLight = new THREE.AmbientLight('rgb(108, 108, 108)', 0.5);
         this.scene.add(ambientLight);
     }
@@ -116,10 +120,10 @@ class Main {
     init() {
         this.initScene();
         camera.setupCamera(this.w, this.h);
-        this.setupLightning();
-        this.renderPlanets();
         this.render();
         camera.setupControls(this.renderer);
+        this.setupLightning();
+        this.renderPlanets();
     }
 }
 export const main = new Main();

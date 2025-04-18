@@ -57,7 +57,10 @@ export class ActivateRaycaster {
             const prevBody = this.bodies.find(b => b.id === this.currentHoveredId);
             if (prevBody) {
                 const material = prevBody.mesh.material;
-                material.emissiveIntensity = 0;
+                material.emissiveIntensity = 0.1;
+            }
+            if (prevBody && prevBody.onHoverEnd) {
+                prevBody.onHoverEnd();
             }
         }
         if (newHoveredId) {
@@ -65,6 +68,9 @@ export class ActivateRaycaster {
             if (newBody) {
                 const material = newBody.mesh.material;
                 material.emissiveIntensity = 0.5;
+            }
+            if (newBody && newBody.onHoverStart) {
+                newBody.onHoverStart();
             }
         }
         this.currentHoveredId = newHoveredId;

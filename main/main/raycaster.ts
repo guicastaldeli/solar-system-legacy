@@ -6,7 +6,9 @@ type Body = {
     mesh: THREE.Mesh;
     defaultColor: string | number;
     hoverColor: string | number;
-    onClick?: (event: MouseEvent) => void;
+    onClick?: (event: MouseEvent) => void,
+    onHoverStart?: () => void,
+    onHoverEnd?: () => void,
 }
 
 export class ActivateRaycaster {
@@ -86,7 +88,11 @@ export class ActivateRaycaster {
 
             if(prevBody) {
                 const material = prevBody.mesh.material as THREE.MeshStandardMaterial;
-                material.emissiveIntensity = 0;
+                material.emissiveIntensity = 0.1;
+            }
+
+            if(prevBody && prevBody.onHoverEnd) {
+                prevBody.onHoverEnd();
             }
         }
 
@@ -96,6 +102,10 @@ export class ActivateRaycaster {
             if(newBody) {
                 const material = newBody.mesh.material as THREE.MeshStandardMaterial;
                 material.emissiveIntensity = 0.5;
+            }
+
+            if(newBody && newBody.onHoverStart) {
+                newBody.onHoverStart();
             }
         }
 
