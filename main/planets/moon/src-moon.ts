@@ -79,9 +79,8 @@ export class Moon {
         //Animation
             const _animate = (): void => {
                 requestAnimationFrame(_animate);
-
-                this.mesh.rotation.y += 0.002;
                 this.updateOrbit();
+                this.mesh.rotation.y += 0.002;
             }
 
             _animate();

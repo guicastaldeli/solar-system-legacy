@@ -79,7 +79,6 @@ export class Venus extends Orbit {
         //Animation
             const _animate = (): void => {
                 requestAnimationFrame(_animate);
-
                 this.mesh.rotation.y += 0.002;
                 aMesh.rotation.y += 0.05;
             }

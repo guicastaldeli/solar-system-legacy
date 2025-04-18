@@ -94,7 +94,6 @@ export class Earth extends Orbit {
         //Animation
             const _animate = (): void => {
                 requestAnimationFrame(_animate);
-
                 this.mesh.rotation.y += 0.002;
                 cloudsMesh.rotation.y += 0.002;
                 glowMesh.rotation.y += 0.002;

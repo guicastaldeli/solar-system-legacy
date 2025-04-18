@@ -64,11 +64,10 @@ export class Jupiter extends Orbit {
         this.mesh.receiveShadow = true;
 
         //Animation
-        const _animate = (): void => {
-            requestAnimationFrame(_animate);
-                    
+            const _animate = (): void => {
+                requestAnimationFrame(_animate);
                 this.mesh.rotation.y += 0.01;
-                    
+                        
             }
 
             _animate();

@@ -81,7 +81,6 @@ export class Mars extends Orbit {
         //Animation
             const _animate = (): void => {
                 requestAnimationFrame(_animate);
-
                 this.mesh.rotation.y += 0.01;
                 cloudsMesh.rotation.y += 0.015;
             }
