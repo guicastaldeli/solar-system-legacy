@@ -12,16 +12,12 @@
     ],
     "rewrites": [
         { 
-            "source": "/",
-            "destination": "/main/main/main.html"
+            "source": "/", 
+            "destination": "/main/main/main.html" 
         },
         { 
-            "source": "/main/:path*",
-            "destination": "/main/:path*"
-        },
-        { 
-            "source": "/assets/:path*",
-            "destination": "/assets/:path*"
+            "source": "/assets/(.*)", 
+            "destination": "/assets/$1" 
         }
     ],
     "headers": [
@@ -31,15 +27,6 @@
                 {
                     "key": "Content-Type",
                     "value": "application/javascript"
-                }
-            ]
-        },
-        {
-            "source": "/(.*)\\.glsl$",
-            "headers": [
-                {
-                    "key": "Content-Type",
-                    "value": "text/plain"
                 }
             ]
         }
