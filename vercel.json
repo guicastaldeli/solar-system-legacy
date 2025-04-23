@@ -1,0 +1,34 @@
+{
+    "version": 2,
+    "builds": [
+        { 
+            "src": "main/**/*", 
+            "use": "@vercel/static"
+        },
+        { 
+            "src": "assets/**/*", 
+            "use": "@vercel/static"
+        }
+    ],
+    "rewrites": [
+        { 
+            "source": "/main/(.*)", 
+            "destination": "/main/main/main.html" 
+        },
+        { 
+            "source": "/assets/(.*)", 
+            "destination": "/assets/$1" 
+        }
+    ],
+    "headers": [
+        {
+            "source": "/(.*)\\.js$",
+            "headers": [
+                {
+                    "key": "Content-Type",
+                    "value": "application/javascript"
+                }
+            ]
+        }
+    ]
+}
