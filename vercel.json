@@ -2,7 +2,7 @@
     "version": 2,
     "builds": [
         { 
-            "src": "main/**/*", 
+            "src": "root/**/*", 
             "use": "@vercel/static"
         },
         { 
@@ -13,15 +13,15 @@
     "rewrites": [
         { 
             "source": "/", 
-            "destination": "/main/main/index.html" 
+            "destination": "/root/main/index.html" 
         },
         { 
             "source": "/assets/(.*)", 
             "destination": "/assets/$1" 
         },
         { 
-            "source": "/main/(.*)", 
-            "destination": "/main/$1" 
+            "source": "/root/(.*)", 
+            "destination": "/root/$1" 
         }
     ],
     "headers": [
