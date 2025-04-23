@@ -1,34 +1,15 @@
 {
     "version": 2,
     "builds": [
-        { 
-            "src": "main/**/*", 
-            "use": "@vercel/static"
-        },
-        { 
-            "src": "assets/**/*", 
-            "use": "@vercel/static"
-        }
+      {
+        "src": "main/main/main.html",
+        "use": "@vercel/static"
+      }
     ],
-    "rewrites": [
-        { 
-            "source": "/main/main/(.*)", 
-            "destination": "/main/main/main.html" 
-        },
-        { 
-            "source": "/assets/(.*)", 
-            "destination": "/assets/$1" 
-        }
-    ],
-    "headers": [
-        {
-            "source": "/(.*)\\.js$",
-            "headers": [
-                {
-                    "key": "Content-Type",
-                    "value": "application/javascript"
-                }
-            ]
-        }
+    "routes": [
+      {
+        "src": "/",
+        "dest": "/main/main/main.html"
+      }
     ]
-}
+  }
