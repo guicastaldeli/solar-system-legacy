@@ -53,7 +53,7 @@ class Main {
     private async initScene(): Promise<void> {
         this.scene = new THREE.Scene();
 
-        //Render Skyboxs
+        //Render Skybox
         this.skybox = new Skybox(300);
         await this.skybox.ready();
         this.scene.add(this.skybox.points);

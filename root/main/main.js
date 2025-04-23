@@ -43,7 +43,7 @@ class Main {
     initScene() {
         return __awaiter(this, void 0, void 0, function* () {
             this.scene = new THREE.Scene();
-            //Render Skyboxs
+            //Render Skybox
             this.skybox = new Skybox(300);
             yield this.skybox.ready();
             this.scene.add(this.skybox.points);

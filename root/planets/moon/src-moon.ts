@@ -57,6 +57,7 @@ export class Moon {
     private findEarth(): Earth {
         const earth = this.planets.find(p => p instanceof Earth);
         if(!earth) throw new Error('Earth not found');
+        
         return earth;
     }
 
