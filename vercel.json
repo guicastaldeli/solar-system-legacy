@@ -13,11 +13,15 @@
     "rewrites": [
         { 
             "source": "/", 
-            "destination": "/main/main/main.html" 
+            "destination": "/main/main.html" 
         },
         { 
             "source": "/assets/(.*)", 
             "destination": "/assets/$1" 
+        },
+        { 
+            "source": "/main/(.*)", 
+            "destination": "/main/$1" 
         }
     ],
     "headers": [
