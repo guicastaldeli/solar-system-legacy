@@ -2,7 +2,7 @@
     "version": 2,
     "builds": [
         { 
-            "src": "root/**/*", 
+            "src": "root/**/*",
             "use": "@vercel/static"
         },
         { 
@@ -11,9 +11,9 @@
         }
     ],
     "rewrites": [
-        { 
-            "source": "/", 
-            "destination": "/root/main/index.html" 
+        {
+            "source": "/",
+            "destination": "/root/main/main.html"
         },
         { 
             "source": "/assets/(.*)", 
@@ -31,6 +31,15 @@
                 {
                     "key": "Content-Type",
                     "value": "application/javascript"
+                }
+            ]
+        },
+        {
+            "source": "/(.*)\\.glsl$",
+            "headers": [
+                {
+                    "key": "Content-Type",
+                    "value": "text/plain"
                 }
             ]
         }

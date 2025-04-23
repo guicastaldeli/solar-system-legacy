@@ -153,15 +153,15 @@ class Main {
     }
 
     //Init
-    private init() {
-        this.initScene();
+    private async init() {
+        await this.initScene();
         camera.setupCamera(this.w, this.h);
         this.render();
         camera.setupControls(this.renderer);
 
         this.setupLightning();
 
-        this.renderPlanets();
+        await this.renderPlanets();
     }
 }
 

@@ -118,12 +118,14 @@ class Main {
     }
     //Init
     init() {
-        this.initScene();
-        camera.setupCamera(this.w, this.h);
-        this.render();
-        camera.setupControls(this.renderer);
-        this.setupLightning();
-        this.renderPlanets();
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.initScene();
+            camera.setupCamera(this.w, this.h);
+            this.render();
+            camera.setupControls(this.renderer);
+            this.setupLightning();
+            yield this.renderPlanets();
+        });
     }
 }
 export const main = new Main();
