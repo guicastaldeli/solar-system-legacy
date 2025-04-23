@@ -13,7 +13,7 @@
     "rewrites": [
         { 
             "source": "/", 
-            "destination": "/main/main.html" 
+            "destination": "/main/main/index.html" 
         },
         { 
             "source": "/assets/(.*)", 
