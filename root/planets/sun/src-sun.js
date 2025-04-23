@@ -22,8 +22,8 @@ export class Sun {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const [vertexShader, fragShader] = yield Promise.all([
-                    this.loadShader('../planets/sun/shaders/vertexShader.glsl'),
-                    this.loadShader('../planets/sun/shaders/fragShader.glsl')
+                    this.loadShader('/root/planets/sun/shaders/vertexShader.glsl'),
+                    this.loadShader('/root/planets/sun/shaders/fragShader.glsl')
                 ]);
                 //Loader
                 const loader = new THREE.TextureLoader();
@@ -57,8 +57,8 @@ export class Sun {
                 this.mesh.receiveShadow = true;
                 //Halo
                 const [hVertexShader, hFragShader] = yield Promise.all([
-                    this.loadShader('../planets/sun/shaders/hVertexShader.glsl'),
-                    this.loadShader('../planets/sun/shaders/hFragShader.glsl')
+                    this.loadShader('/root/planets/sun/shaders/hVertexShader.glsl'),
+                    this.loadShader('/root/planets/sun/shaders/hFragShader.glsl')
                 ]);
                 const haloGeometry = new THREE.IcosahedronGeometry(this.props.r, 3);
                 const haloMat = new THREE.ShaderMaterial({

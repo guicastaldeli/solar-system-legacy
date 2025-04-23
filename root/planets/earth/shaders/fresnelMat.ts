@@ -10,8 +10,8 @@ let readyPromise: Promise<void> | null = null;
 export async function getFresnelMat({ rimHex = 'rgb(15, 131, 214)', facingHex = 'rgb(0, 0, 0)' } = {} as FresnelMatOptions) {
     try {
         const [vertexShader, fragmentShader] = await Promise.all([
-            loadShader('../planets/earth/shaders/vertexShader.glsl'),
-            loadShader('../planets/earth/shaders/fragShader.glsl')
+            loadShader('/root/planets/earth/shaders/vertexShader.glsl'),
+            loadShader('/root/planets/earth/shaders/fragShader.glsl')
         ]);
         
         const uniforms = {

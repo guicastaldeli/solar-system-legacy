@@ -13,8 +13,8 @@ export function getFresnelMat() {
     return __awaiter(this, arguments, void 0, function* ({ rimHex = 'rgb(15, 131, 214)', facingHex = 'rgb(0, 0, 0)' } = {}) {
         try {
             const [vertexShader, fragmentShader] = yield Promise.all([
-                loadShader('../planets/earth/shaders/vertexShader.glsl'),
-                loadShader('../planets/earth/shaders/fragShader.glsl')
+                loadShader('/root/planets/earth/shaders/vertexShader.glsl'),
+                loadShader('/root/planets/earth/shaders/fragShader.glsl')
             ]);
             const uniforms = {
                 color1: { value: new THREE.Color(rimHex) },

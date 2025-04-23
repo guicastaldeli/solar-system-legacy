@@ -34,8 +34,8 @@ export class Skybox {
     private async createStars() {
         try {
             const [vertexShader, fragmentShader] = await Promise.all([
-                this.loadShader('./skybox/shaders/vertexShader.glsl'),
-                this.loadShader('./skybox/shaders/fragShader.glsl')
+                this.loadShader('/root/main/skybox/shaders/vertexShader.glsl'),
+                this.loadShader('/root/main/skybox/shaders/fragShader.glsl')
             ]);
 
             this.material = new THREE.ShaderMaterial({

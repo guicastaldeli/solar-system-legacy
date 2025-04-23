@@ -54,8 +54,8 @@ export class Sun {
     private async createSun(): Promise<void> {
         try {
             const [vertexShader, fragShader] = await Promise.all([
-                this.loadShader('../planets/sun/shaders/vertexShader.glsl'),
-                this.loadShader('../planets/sun/shaders/fragShader.glsl')
+                this.loadShader('/root/planets/sun/shaders/vertexShader.glsl'),
+                this.loadShader('/root/planets/sun/shaders/fragShader.glsl')
             ]);
 
             //Loader
@@ -95,8 +95,8 @@ export class Sun {
 
             //Halo
                 const [hVertexShader, hFragShader] = await Promise.all([
-                    this.loadShader('../planets/sun/shaders/hVertexShader.glsl'),
-                    this.loadShader('../planets/sun/shaders/hFragShader.glsl')
+                    this.loadShader('/root/planets/sun/shaders/hVertexShader.glsl'),
+                    this.loadShader('/root/planets/sun/shaders/hFragShader.glsl')
                 ]);
 
                 const haloGeometry = new THREE.IcosahedronGeometry(this.props.r, 3);

@@ -31,8 +31,8 @@ export class Skybox {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const [vertexShader, fragmentShader] = yield Promise.all([
-                    this.loadShader('./skybox/shaders/vertexShader.glsl'),
-                    this.loadShader('./skybox/shaders/fragShader.glsl')
+                    this.loadShader('/root/main/skybox/shaders/vertexShader.glsl'),
+                    this.loadShader('/root/main/skybox/shaders/fragShader.glsl')
                 ]);
                 this.material = new THREE.ShaderMaterial({
                     uniforms: {
