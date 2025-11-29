@@ -1,5 +1,5 @@
 
-# Solar System
+# Solar System (Legacy)
 
 A brief, interable and easy way to view the solar system and its Planets.
 You can click in the Planets to see their names and visual details.
